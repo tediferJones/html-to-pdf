@@ -13,26 +13,54 @@ import examplePdf from '../../notes/dummy.pdf';
 		<title>Astro</title>
 
 
-    <script is:inline src='https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js'></script>
+    <script is:inline src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.js'></script>
+    <script is:inline src="https://cdn.tailwindcss.com"></script>
+{/*
+    <script>
+    tailwind.config = {
+      safelist: [
+        {
+          pattern: /./,
+        },
+      ],
+      theme: {
+        extend: {
+          colors: {
+            clifford: '#da373d',
+          }
+        }
+      }
+    }
+    </script>
+This seems to have no effect in terms of importing all the tailwind classes
+    <script is:inline src="https://cdn.tailwindcss.com"></script>
+*/}
+
 
 {/*
+    WORKING
+    <script is:inline src='https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js'></script>
+
+
     <script is:raw src="html2pdf.bundle.min.js"></script>
 
     <script is:inline src="es6-promise.auto.min.js"></script>
     <script is:inline src="jspdf.min.js"></script>
     <script is:inline src="html2canvas.min.js"></script>
     <script is:inline src="html2pdf.min.js"></script>
+
+        <label for='pdfUpload'>PDF:</label>
+        <input id='pdfUpload' type='file' accept='.pdf'/>
+        <hr>
 */}
 	</head>
 	<body class='h-full w-full'>
 
     <div id='container' class='flex h-full'>
       <div class='flex-1'>
-        <label for='pdfUpload'>PDF:</label>
-        <input id='pdfUpload' type='file' accept='.pdf'/>
-        <hr>
         <label for='htmlUpload'>HTML:</label>
         <input id='htmlUpload' type='file' accept='.html'/>
+        <button id='updatePdf'>Update PDF</button>
         <textarea id='htmlEditor' class='w-full border-8 align-top h-[95%]'/>
       </div>
       <object id='pdfContainer' class='flex-1' data={examplePdf} type="application/pdf">
