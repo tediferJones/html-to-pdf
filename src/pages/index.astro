@@ -1,7 +1,4 @@
 ---
-import Counter from '../components/counter';
-import OldApp from '../components/oldApp';
-import examplePdf from '../../notes/dummy.pdf';
 ---
 
 <html lang="en" class='h-full w-full'>
@@ -15,94 +12,24 @@ import examplePdf from '../../notes/dummy.pdf';
 
     <script is:inline src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.js'></script>
     <script is:inline src="https://cdn.tailwindcss.com"></script>
-{/*
-    <script>
-    tailwind.config = {
-      safelist: [
-        {
-          pattern: /./,
-        },
-      ],
-      theme: {
-        extend: {
-          colors: {
-            clifford: '#da373d',
-          }
-        }
-      }
-    }
-    </script>
-This seems to have no effect in terms of importing all the tailwind classes
-    <script is:inline src="https://cdn.tailwindcss.com"></script>
-*/}
-
-
-{/*
+    <script src='../pdf.js'></script>
+    {/*
     WORKING
     <script is:inline src='https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js'></script>
-
-
-    <script is:raw src="html2pdf.bundle.min.js"></script>
-
-    <script is:inline src="es6-promise.auto.min.js"></script>
-    <script is:inline src="jspdf.min.js"></script>
-    <script is:inline src="html2canvas.min.js"></script>
-    <script is:inline src="html2pdf.min.js"></script>
-
-        <label for='pdfUpload'>PDF:</label>
-        <input id='pdfUpload' type='file' accept='.pdf'/>
-        <hr>
-*/}
+    */}
 	</head>
-	<body class='h-full w-full'>
-
-    <div id='container' class='flex h-full'>
-      <div class='flex-1'>
-        <label for='htmlUpload'>HTML:</label>
-        <input id='htmlUpload' type='file' accept='.html'/>
-        <button id='updatePdf'>Update PDF</button>
-        <textarea id='htmlEditor' class='w-full border-8 align-top h-[95%]'/>
-      </div>
-      <object id='pdfContainer' class='flex-1' data={examplePdf} type="application/pdf">
-        <p>Unable to display PDF file. <a href={examplePdf}>Download</a> instead.</p>
-      </object>
+  <body class='h-full w-full flex flex-col md:flex-row'>
+    <div class='flex h-full flex-1 flex-col'>
+      <span class='flex'>
+        <label class='m-auto' for='htmlUpload'>HTML:</label>
+        <input class='m-auto flex-[2]' id='htmlUpload' type='file' accept='.html'/>
+        <button class='flex-1 m-auto' id='updatePdf'>Update PDF</button>
+        <a class='flex-1 m-auto' id='htmlDownload'>Download HTML</a>
+      </span>
+      <textarea id='htmlEditor' class='h-full w-full border-8 resize-none'/>
     </div>
-
-
-    <script src='../pdf.js' ></script>
-	</body>
+    <object id='pdfContainer' class='flex-1' type="application/pdf">
+      <p>Unable to display PDF file. <a id='pdfDisplayError'>Download</a> instead.</p>
+    </object>
+  </body>
 </html>
-
-{/*
-The Real Solution:
-https://www.w3docs.com/snippets/html/how-to-embed-pdf-in-html.html
-So as long as we get something that will output a structure similar to examplePdf
-If we can get some data similar to examplePdf, we'll be set 
-*/}
-
-{/*
-    <div class='flex justify-between'>
-      <h1>Astro</h1>
-      <div class='bg-red-600'>THIS IS SOME NEW CONTENT</div>
-      <Counter client:load />
-    </div>
-
-
-
-
-    <OldApp client:load />
-
-    <script src='https://unpkg.com/pdfjs-dist/'></script>
-    <script src='https://cdnjs.com/libraries/pdf.js'></script>
-
-    Embed PDF by Adobe: https://developer.adobe.com/document-services/apis/pdf-embed/
-
-    So far this still seems like the best option:
-    https://www.npmjs.com/package/react-pdf
-
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179/build/pdf.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.9.179/web/pdf_viewer.min.css" rel="stylesheet">
-
-    GIVE THIS A TRY TOO:
-    https://artskydj.github.io/jsPDF/docs/index.html
-*/}

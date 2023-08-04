@@ -1,34 +1,21 @@
-import examplePdf from '../notes/dummy.pdf';
-// This apparently just resolves to a URL, 
-// although that URL could just point to something in the filesystem
-
-// We want the user to able to upload their own html, so the text in the input has to be somehow messaged into an html file format
-// Step 1: Create a file upload button
-// Step 2: Get that pdf to display in the html object tag
-// Yay we can display blobs as a pdf, hopefully we can find a pdf converter that will output something similar
-// Step 4: the above functions should provide enough info to convert a string (the contents of our text input) to a file, 
-//         with that we should be able to convert this data to a pdf file and display it to the user
-// LAST STEP: Get a nicer text editor, maybe one that supports vim key bindings
-//   - At the end of the day we're just reading a string, so the editor doesnt really matter
-
 // TO DO:
-// Styling only works with inline styles, try to get it working with tailwind classes
-//   - Tailwind classes only work when the file is imported, if you change them after that it gets bricked, figure out why this is the case
-//     - ACTUALLY, some tailwind classes work, others dont, maybe the tailwindCSS file is automatically being minimized?  Try importing straight from a CDN to get the entire tailwind library
-//     Classes that actually work: bg-red-500, bg-red-600, bg-blue-500
-//   - We need something like this: https://github.com/vadimdemedes/tailwind-rn
-//   - Or maybe: https://devdojo.com/tnylea/extracting-tailwindcss-from-html
-// Delete pdf upload button, we want users to be able to upload HTML file, download HTML file, and maybe download PDF file
+//  - Get 'Download HTML' button working, consider making 'Download PDF' button
+//    - Add a text input so users can name the file before downloading
+//    - OR, just let the native download pop-up take care of it, that will give the user the option to rename anyways
+//  - Consider adding a customizable css file that gets bundled into our html, add a tab to toolbar to edit this file
+//  - Add a nicer editor, see list of possible editors below
+//  - Make the pdf (and html download) auto update, 
+//    - We want updatePdf to run user hasnt changed the input box for a few seconds
+//    - See searchbar component of movie-tracker for an example
+//  - Add a little question mark or an info icon, on hover display a dialog explaining what this website does and how to use it
+//  - Make a select HTML button, on hover have a little drop down that shows the file selector,
+//    - Then put a normal text input next to this new button, that will control the filename
+//      - only need one title, just name one title.pdf and the other title.html
+//
 // Do we want to use NPM?  This depends on how the text editor needs to be installed
 //    If we go pureJS: scripts are fetch via CDN, if you dont have internet you cant access the CDN
 //    If we go npm: Packages should be minified and bundled into the website, should be useable offline
-// Consider adding a customizable css file that gets bundled into our html, add a tab to toolbar to edit this file
-//
-
-// If you include a class in the HTML, then the pdf output can actually use that class
-// TAILWIND IS DEFINITLEY BEING MINIFIED, how can import all of them?
-// Or just scan the input for classes and import those as needed
-// OR maybe try setting this up in a project that is just raw HTML/CSS/JS, maybe astro is causing this weird issue
+// - Once decided if we are going npm or vanilla JS, delete extra components like oldApp.jsx and counter.tsx
 
 // Possible Editors:
 // VIM: https://github.com/coolwanglu/vim.js or https://wang-lu.com/vim.js/asyncify/vim.html
@@ -38,13 +25,27 @@ import examplePdf from '../notes/dummy.pdf';
 //
 // THIS IS JUST AWESOME: http://appsweets.net/wasavi/
 
-// Add event listener for when html file gets uploaded
-document.getElementById('htmlUpload').addEventListener('change', async () => {
-  const fileTextContent = await document.getElementById('htmlUpload').files[0].text()
-  document.getElementById('htmlEditor').value = fileTextContent;
+async function updatePdf(content, renderOnce) {
+  // const pdfData = await html2pdf().from("<h1 class='bg-blue-500'>NEW DATA</h1>", 'string').outputPdf('bloburi')
+  // THE FIX, apparently if you run it twice, it'll just work
+  // Why does this work? No body knows
+  // Theory: The new tailwind classes dont get imported in time, but if you just run it again they will already been imported from the last run
+  // This seems to hold true because classes that have already been called in the HTML are availble on the first run
+  if (!renderOnce) {
+    await html2pdf().from(content, 'string').outputPdf('bloburi');
+  }
+  // Update the pdf object container
+  const pdfUrl = await html2pdf().from(content, 'string').outputPdf('bloburi');
+  document.getElementById('pdfContainer').data = pdfUrl;
+  document.getElementById('pdfDisplayError').href = pdfUrl; 
 
-  // document.getElementById('pdfContainer').data = await html2pdf().from(document.getElementById('htmlEditor').value, 'string').outputPdf('bloburi');
-  document.getElementById('pdfContainer').data = await html2pdf().from(fileTextContent, 'string').outputPdf('bloburi');
+  // Create a new file with our new HTML content, and set <a> tag to download HTML file accordingly
+  let htmlFile = new File([content], 'html-to-pdf.html', { type: 'text/html' })
+  console.log(htmlFile);
+  document.getElementById('htmlDownload').href = URL.createObjectURL(htmlFile);
+  document.getElementById('htmlDownload').download = htmlFile.name;
+
+
   // These options dont seem to do anything
   // {
   //   margin:       1,
@@ -53,29 +54,35 @@ document.getElementById('htmlUpload').addEventListener('change', async () => {
   //   html2canvas:  { scale: 2 },
   //   jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   // })
+}
+
+// Set default pdf, i.e. create a blank document
+updatePdf('', true);
+
+// Add event listener for when html file gets uploaded
+document.getElementById('htmlUpload').addEventListener('change', async () => {
+  // Set a global variable called delay to setTimeout, in the root of the document
+  // if delay exists, then clearTimeout and reset it
+  const fileTextContent = await document.getElementById('htmlUpload').files[0].text()
+  document.getElementById('htmlEditor').value = fileTextContent;
+
+  updatePdf(fileTextContent);
 })
 
 // Update pdfContainer with new PDF generated from current htmlEditor value
-document.getElementById('updatePdf').addEventListener('click', async () => {
-  // const pdfData = await html2pdf().from("<h1 class='bg-blue-500'>NEW DATA</h1>", 'string').outputPdf('bloburi')
-  // THE FIX, apparently if you run it twice, it'll just work
-  // Why does this work? No body knows
-  // Theory: The new tailwind classes dont get imported in time, but if you just run it again they will already been imported from the last run
-  // This seems to hold true because classes that have already been called in the HTML are availble on the first run
-  await html2pdf()
-    .from(document.getElementById('htmlEditor').value, 'string')
-    .outputPdf('bloburi')
-  document.getElementById('pdfContainer').data = await html2pdf()
-    .from(document.getElementById('htmlEditor').value, 'string')
-    .outputPdf('bloburi');
+document.getElementById('updatePdf').addEventListener('click', () => {
+  updatePdf(document.getElementById('htmlEditor').value);
 })
-
-console.log(examplePdf)
-console.log('HELLO WORLD')
-
 
 
 // DEPRECATED STUFF
+
+// Use this to download: https://stackoverflow.com/questions/11620698/how-to-trigger-a-file-download-when-clicking-an-html-button-or-javascript
+// Create html file and queue download
+// document.getElementById('htmlDownload').addEventListener('click', () => {
+//   console.log('Download textarea input as html file')
+// 
+// })
 
 // USING WORKER FOR html2pdf()
 // let worker = html2pdf()
