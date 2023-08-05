@@ -1,29 +1,49 @@
 // TO DO:
-//  - Get 'Download HTML' button working, consider making 'Download PDF' button
-//    - Add a text input so users can name the file before downloading
-//    - OR, just let the native download pop-up take care of it, that will give the user the option to rename anyways
 //  - Consider adding a customizable css file that gets bundled into our html, add a tab to toolbar to edit this file
 //  - Add a nicer editor, see list of possible editors below
-//  - Make the pdf (and html download) auto update, 
-//    - We want updatePdf to run user hasnt changed the input box for a few seconds
-//    - See searchbar component of movie-tracker for an example
-//  - Add a little question mark or an info icon, on hover display a dialog explaining what this website does and how to use it
-//  - Make a select HTML button, on hover have a little drop down that shows the file selector,
-//    - Then put a normal text input next to this new button, that will control the filename
-//      - only need one title, just name one title.pdf and the other title.html
+//    - If we get a nicer editor with vim mode working, allow user to set a default
+//      - Use localstorage to load/preserve this value
+//
+//  - Get the filename input working OR just rely on the native downloader for renaming
+//    - Should recognize uploaded file name
+//    - Will be used to save both files, i.e. <FILENAME>.html and <FILENAME>.pdf
+//  - Fill in the info dropdown with some useful text
+//  - Get the pdf download button working
+//    - If possible, remove logic that creates these files from updatePdf()
+//      - This should slightly improve "performance" and is just in general better logic
+//  - Simplify HTML, icons do not need to be nested, just put the classes on the containing divs
+//  - Renaming: 
+//    htmlUploadContainer -> uploadContainer
+//    htmlUploadSelector -> uploadSelector
+//    Replace all "" in the HTML file to ''
+//
+// Use this to download files: https://stackoverflow.com/questions/11620698/how-to-trigger-a-file-download-when-clicking-an-html-button-or-javascript
+//
 //
 // Do we want to use NPM?  This depends on how the text editor needs to be installed
 //    If we go pureJS: scripts are fetch via CDN, if you dont have internet you cant access the CDN
 //    If we go npm: Packages should be minified and bundled into the website, should be useable offline
 // - Once decided if we are going npm or vanilla JS, delete extra components like oldApp.jsx and counter.tsx
+// - If we end up going with npm, we can give jsDoc a try
 
 // Possible Editors:
 // VIM: https://github.com/coolwanglu/vim.js or https://wang-lu.com/vim.js/asyncify/vim.html
 // Another vim option: https://github.com/toplan/Vim.js
 // VSCode-ish: https://ace.c9.io/
 // VSCode: https://microsoft.github.io/monaco-editor/
+// THE SOLUTION TO ALL: https://codemirror.net/examples/autocompletion/
+//  - And this adds a vim mode: https://codemirror.net/5/demo/vim.html OR https://github.com/replit/codemirror-vim
 //
 // THIS IS JUST AWESOME: http://appsweets.net/wasavi/
+
+// If we never use this function outside of updatePdf() then move it back inside updatePdf()
+function updateHtml(content) {
+  // use user defined filename here
+  let htmlFile = new File([content], 'html-to-pdf.html', { type: 'text/html' })
+  // console.log(htmlFile);
+  document.getElementById('htmlDownload').href = URL.createObjectURL(htmlFile);
+  document.getElementById('htmlDownload').download = htmlFile.name;
+}
 
 async function updatePdf(content, renderOnce) {
   // const pdfData = await html2pdf().from("<h1 class='bg-blue-500'>NEW DATA</h1>", 'string').outputPdf('bloburi')
@@ -39,12 +59,7 @@ async function updatePdf(content, renderOnce) {
   document.getElementById('pdfContainer').data = pdfUrl;
   document.getElementById('pdfDisplayError').href = pdfUrl; 
 
-  // Create a new file with our new HTML content, and set <a> tag to download HTML file accordingly
-  let htmlFile = new File([content], 'html-to-pdf.html', { type: 'text/html' })
-  console.log(htmlFile);
-  document.getElementById('htmlDownload').href = URL.createObjectURL(htmlFile);
-  document.getElementById('htmlDownload').download = htmlFile.name;
-
+  updateHtml(content);
 
   // These options dont seem to do anything
   // {
@@ -56,28 +71,75 @@ async function updatePdf(content, renderOnce) {
   // })
 }
 
-// Set default pdf, i.e. create a blank document
-updatePdf('', true);
-
-// Add event listener for when html file gets uploaded
+// When html file gets uploaded, set htmlEditor to its text content, and generate a pdf
 document.getElementById('htmlUpload').addEventListener('change', async () => {
-  // Set a global variable called delay to setTimeout, in the root of the document
-  // if delay exists, then clearTimeout and reset it
   const fileTextContent = await document.getElementById('htmlUpload').files[0].text()
+  // update filename input here
   document.getElementById('htmlEditor').value = fileTextContent;
 
   updatePdf(fileTextContent);
 })
 
-// Update pdfContainer with new PDF generated from current htmlEditor value
-document.getElementById('updatePdf').addEventListener('click', () => {
-  updatePdf(document.getElementById('htmlEditor').value);
+// Automatically re-render PDF after user stops typing for a given amount of time
+document.getElementById('htmlEditor').addEventListener('input', () => {
+  if (delay) clearTimeout(delay);
+  delay = setTimeout(() => {
+    updatePdf(document.getElementById('htmlEditor').value);
+  }, 2000)
 })
+
+document.getElementById('htmlUploadContainer').addEventListener('mouseenter', () => {
+  document.getElementById('htmlUploadSelector').classList.remove('hidden');
+  document.getElementById('uploadToggle').classList.add('bg-blue-600');
+})
+document.getElementById('htmlUploadContainer').addEventListener('mouseleave', () => {
+  document.getElementById('htmlUploadSelector').classList.add('hidden');
+  document.getElementById('uploadToggle').classList.remove('bg-blue-600');
+})
+document.getElementById('uploadToggle').addEventListener('click', () => {
+  document.getElementById('htmlUploadSelector').classList.toggle('hidden');
+  document.getElementById('uploadToggle').classList.toggle('bg-blue-600');
+})
+
+document.getElementById('downloadContainer').addEventListener('mouseenter', () => {
+  document.getElementById('downloadSelector').classList.remove('hidden');
+  document.getElementById('downloadToggle').classList.add('bg-blue-600')
+})
+document.getElementById('downloadContainer').addEventListener('mouseleave', () => {
+  document.getElementById('downloadSelector').classList.add('hidden');
+  document.getElementById('downloadToggle').classList.remove('bg-blue-600')
+})
+document.getElementById('downloadContainer').addEventListener('click', () => {
+  document.getElementById('downloadSelector').classList.toggle('hidden');
+  document.getElementById('downloadToggle').classList.toggle('bg-blue-600')
+})
+
+document.getElementById('infoContainer').addEventListener('mouseenter', () => {
+  document.getElementById('infoSelector').classList.remove('hidden');
+  document.getElementById('infoToggle').classList.add('bg-blue-600')
+})
+document.getElementById('infoContainer').addEventListener('mouseleave', () => {
+  document.getElementById('infoSelector').classList.add('hidden');
+  document.getElementById('infoToggle').classList.remove('bg-blue-600')
+})
+document.getElementById('infoContainer').addEventListener('click', () => {
+  document.getElementById('infoSelector').classList.toggle('hidden');
+  document.getElementById('infoToggle').classList.toggle('bg-blue-600')
+})
+
+// Make a special case checker for the above, makeDropDown(parent, toggle, dropdown)
+// or makeDropDown(baseString, classAction, classValue)
+// First just make a function that adds all three event listeners, only arg should be (baseString)
+// Second, try to simplify the three event listeners will probs end up with something like:
+
+let delay;
+// Set default pdf, i.e. create a blank document
+updatePdf('', true);
+
 
 
 // DEPRECATED STUFF
 
-// Use this to download: https://stackoverflow.com/questions/11620698/how-to-trigger-a-file-download-when-clicking-an-html-button-or-javascript
 // Create html file and queue download
 // document.getElementById('htmlDownload').addEventListener('click', () => {
 //   console.log('Download textarea input as html file')

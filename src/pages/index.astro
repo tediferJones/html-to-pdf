@@ -13,6 +13,8 @@
     <script is:inline src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.js'></script>
     <script is:inline src="https://cdn.tailwindcss.com"></script>
     <script src='../pdf.js'></script>
+
+    <script is:inline src="https://kit.fontawesome.com/0db2e99dd7.js" crossorigin="anonymous"></script>
     {/*
     WORKING
     <script is:inline src='https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js'></script>
@@ -20,11 +22,47 @@
 	</head>
   <body class='h-full w-full flex flex-col md:flex-row'>
     <div class='flex h-full flex-1 flex-col'>
-      <span class='flex'>
-        <label class='m-auto' for='htmlUpload'>HTML:</label>
-        <input class='m-auto flex-[2]' id='htmlUpload' type='file' accept='.html'/>
-        <button class='flex-1 m-auto' id='updatePdf'>Update PDF</button>
-        <a class='flex-1 m-auto' id='htmlDownload'>Download HTML</a>
+      <span class='flex justify-between bg-gray-700 relative text-white'>
+        <div class='my-auto'>
+          <label class='p-2' for='filename'>Filename:</label>
+          <input class='text-black' id='filename' type='text' />
+        </div>
+        <div class='flex'>
+          <div id='infoContainer'>
+            <button class='p-2' id='infoToggle'>
+              <i class="fa-solid fa-circle-info"></i>
+            </button>
+            <div class='hidden absolute right-0 bg-blue-600' id='infoSelector'>
+              Hello World
+            </div>
+          </div>
+
+          <div id='htmlUploadContainer'>
+            <button class='p-2' id='uploadToggle'>
+              <i class='fas fa-cloud-upload-alt'></i>
+            </button>
+            <div class='hidden absolute right-0 bg-blue-600 p-4' id='htmlUploadSelector'>
+              <label class='m-auto' for='htmlUpload'>HTML:</label>
+              <input class='m-auto flex-[2]' id='htmlUpload' type='file' accept='.html'/>
+            </div>
+          </div>
+
+          <div id='downloadContainer'>
+            <button class='p-2' id='downloadToggle'>
+              <i class='fas fa-cloud-download-alt'></i>
+            </button>
+            <div class='hidden absolute right-0 bg-blue-600 flex flex-col' id='downloadSelector'>
+              <a class='p-4' id='htmlDownload'>
+                <i class="fa-solid fa-file-code fa-2xl p-2 cursor-pointer"></i>
+                <span>HTML</span>
+              </a>
+              <a class='p-4'>
+                <i class="fa-solid fa-file-pdf fa-2xl p-2 cursor-pointer"></i>
+                <span>PDF</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </span>
       <textarea id='htmlEditor' class='h-full w-full border-8 resize-none'/>
     </div>
