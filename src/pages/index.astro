@@ -25,48 +25,42 @@
       <span class='flex justify-between bg-gray-700 relative text-white'>
         <div class='my-auto'>
           <label class='p-2' for='filename'>Filename:</label>
-          <input class='text-black' id='filename' type='text' />
+          <input class='text-black my-2' id='filename' type='text' />
         </div>
         <div class='flex'>
           <div id='infoContainer'>
-            <button class='p-2' id='infoToggle'>
-              <i class="fa-solid fa-circle-info"></i>
-            </button>
-            <div class='hidden absolute right-0 bg-blue-600' id='infoSelector'>
-              Hello World
+            <button class='py-2 px-4 h-full fa-solid fa-circle-info' id='infoToggle'></button>
+            <div class='hidden absolute right-0 bg-blue-600 w-1/2 p-4' id='infoSelector'>
+              <h1>Hello World</h1>
             </div>
           </div>
 
-          <div id='htmlUploadContainer'>
-            <button class='p-2' id='uploadToggle'>
-              <i class='fas fa-cloud-upload-alt'></i>
-            </button>
-            <div class='hidden absolute right-0 bg-blue-600 p-4' id='htmlUploadSelector'>
+          <div id='uploadContainer'>
+            <button class='py-2 px-4 h-full fas fa-cloud-upload-alt' id='uploadToggle'></button>
+            <div class='hidden absolute right-0 bg-blue-600 p-4' id='uploadSelector'>
               <label class='m-auto' for='htmlUpload'>HTML:</label>
               <input class='m-auto flex-[2]' id='htmlUpload' type='file' accept='.html'/>
             </div>
           </div>
 
           <div id='downloadContainer'>
-            <button class='p-2' id='downloadToggle'>
-              <i class='fas fa-cloud-download-alt'></i>
-            </button>
+            <button class='py-2 px-4 h-full fas fa-cloud-download-alt' id='downloadToggle'></button>
             <div class='hidden absolute right-0 bg-blue-600 flex flex-col' id='downloadSelector'>
-              <a class='p-4' id='htmlDownload'>
-                <i class="fa-solid fa-file-code fa-2xl p-2 cursor-pointer"></i>
-                <span>HTML</span>
-              </a>
-              <a class='p-4'>
-                <i class="fa-solid fa-file-pdf fa-2xl p-2 cursor-pointer"></i>
-                <span>PDF</span>
-              </a>
+              <button class='py-4 px-6 flex' id='htmlDownload'>
+                <i class="fa-solid fa-file-code fa-2xl cursor-pointer self-center pr-4"></i>
+                <span class='w-full'>HTML</span>
+              </button>
+              <button class='py-4 px-6 flex' id='pdfDownload'>
+                <i class="fa-solid fa-file-pdf fa-2xl cursor-pointer self-center pr-2"></i>
+                <span class='w-full'>PDF</span>
+              </button>
             </div>
           </div>
         </div>
       </span>
       <textarea id='htmlEditor' class='h-full w-full border-8 resize-none'/>
     </div>
-    <object id='pdfContainer' class='flex-1' type="application/pdf">
+    <object id='pdfContainer' class='flex-1' type='application/pdf'>
       <p>Unable to display PDF file. <a id='pdfDisplayError'>Download</a> instead.</p>
     </object>
   </body>

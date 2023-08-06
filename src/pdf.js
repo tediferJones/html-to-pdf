@@ -4,20 +4,14 @@
 //    - If we get a nicer editor with vim mode working, allow user to set a default
 //      - Use localstorage to load/preserve this value
 //
-//  - Get the filename input working OR just rely on the native downloader for renaming
-//    - Should recognize uploaded file name
-//    - Will be used to save both files, i.e. <FILENAME>.html and <FILENAME>.pdf
 //  - Fill in the info dropdown with some useful text
-//  - Get the pdf download button working
-//    - If possible, remove logic that creates these files from updatePdf()
-//      - This should slightly improve "performance" and is just in general better logic
 //  - Simplify HTML, icons do not need to be nested, just put the classes on the containing divs
+//  - Add a better default state, put some example text in the htmlEditor, and 'html-to-pdf' in the filename
+//    - Consider removing content var from updatePdf(), content will always be the text inside 'htmlEditor'
+//      - May need to manually call updatePdf() in the 'htmlUpload' eventListener
 //  - Renaming: 
-//    htmlUploadContainer -> uploadContainer
-//    htmlUploadSelector -> uploadSelector
 //    Replace all "" in the HTML file to ''
-//
-// Use this to download files: https://stackoverflow.com/questions/11620698/how-to-trigger-a-file-download-when-clicking-an-html-button-or-javascript
+//    Rename 'Selector' elements to ${baseString}DropDown, this just makes way more sense
 //
 //
 // Do we want to use NPM?  This depends on how the text editor needs to be installed
@@ -36,17 +30,7 @@
 //
 // THIS IS JUST AWESOME: http://appsweets.net/wasavi/
 
-// If we never use this function outside of updatePdf() then move it back inside updatePdf()
-function updateHtml(content) {
-  // use user defined filename here
-  let htmlFile = new File([content], 'html-to-pdf.html', { type: 'text/html' })
-  // console.log(htmlFile);
-  document.getElementById('htmlDownload').href = URL.createObjectURL(htmlFile);
-  document.getElementById('htmlDownload').download = htmlFile.name;
-}
-
 async function updatePdf(content, renderOnce) {
-  // const pdfData = await html2pdf().from("<h1 class='bg-blue-500'>NEW DATA</h1>", 'string').outputPdf('bloburi')
   // THE FIX, apparently if you run it twice, it'll just work
   // Why does this work? No body knows
   // Theory: The new tailwind classes dont get imported in time, but if you just run it again they will already been imported from the last run
@@ -59,8 +43,6 @@ async function updatePdf(content, renderOnce) {
   document.getElementById('pdfContainer').data = pdfUrl;
   document.getElementById('pdfDisplayError').href = pdfUrl; 
 
-  updateHtml(content);
-
   // These options dont seem to do anything
   // {
   //   margin:       1,
@@ -69,68 +51,71 @@ async function updatePdf(content, renderOnce) {
   //   html2canvas:  { scale: 2 },
   //   jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   // })
-}
+};
 
 // When html file gets uploaded, set htmlEditor to its text content, and generate a pdf
 document.getElementById('htmlUpload').addEventListener('change', async () => {
-  const fileTextContent = await document.getElementById('htmlUpload').files[0].text()
-  // update filename input here
+  const fileTextContent = await document.getElementById('htmlUpload').files[0].text();
   document.getElementById('htmlEditor').value = fileTextContent;
 
+  // remove '.html' and assign to filename input
+  document.getElementById('filename').value = document.getElementById('htmlUpload').files[0].name.slice(0, -5);
+
   updatePdf(fileTextContent);
-})
+});
 
 // Automatically re-render PDF after user stops typing for a given amount of time
 document.getElementById('htmlEditor').addEventListener('input', () => {
   if (delay) clearTimeout(delay);
   delay = setTimeout(() => {
     updatePdf(document.getElementById('htmlEditor').value);
-  }, 2000)
-})
+  }, 2000);
+});
 
-document.getElementById('htmlUploadContainer').addEventListener('mouseenter', () => {
-  document.getElementById('htmlUploadSelector').classList.remove('hidden');
-  document.getElementById('uploadToggle').classList.add('bg-blue-600');
-})
-document.getElementById('htmlUploadContainer').addEventListener('mouseleave', () => {
-  document.getElementById('htmlUploadSelector').classList.add('hidden');
-  document.getElementById('uploadToggle').classList.remove('bg-blue-600');
-})
-document.getElementById('uploadToggle').addEventListener('click', () => {
-  document.getElementById('htmlUploadSelector').classList.toggle('hidden');
-  document.getElementById('uploadToggle').classList.toggle('bg-blue-600');
-})
+// Configure eventListeners for dropdowns
+const casesV4 = {
+  mouseenter: (baseString) => {
+    document.getElementById(`${baseString}Selector`).classList.remove('hidden');
+    document.getElementById(`${baseString}Toggle`).classList.add('bg-blue-600');
+  },
+  mouseleave: (baseString) => {
+    document.getElementById(`${baseString}Selector`).classList.add('hidden');
+    document.getElementById(`${baseString}Toggle`).classList.remove('bg-blue-600');
+  },
+  click: (baseString) => {
+    document.getElementById(`${baseString}Selector`).classList.toggle('hidden');
+    document.getElementById(`${baseString}Toggle`).classList.toggle('bg-blue-600');
+    baseStrings.filter(item => item !== baseString).forEach(otherDropDown => {
+      document.getElementById(`${otherDropDown}Selector`).classList.add('hidden');
+      document.getElementById(`${otherDropDown}Toggle`).classList.remove('bg-blue-600');
+    });
+  },
+};
+const baseStrings = ['upload', 'download', 'info'];
+baseStrings.forEach(baseString => {
+  Object.keys(casesV4).forEach(event => {
+    document.getElementById(`${baseString}Container`).addEventListener(event, () => {
+      casesV4[event](baseString);
+    });
+  });
+});
 
-document.getElementById('downloadContainer').addEventListener('mouseenter', () => {
-  document.getElementById('downloadSelector').classList.remove('hidden');
-  document.getElementById('downloadToggle').classList.add('bg-blue-600')
-})
-document.getElementById('downloadContainer').addEventListener('mouseleave', () => {
-  document.getElementById('downloadSelector').classList.add('hidden');
-  document.getElementById('downloadToggle').classList.remove('bg-blue-600')
-})
-document.getElementById('downloadContainer').addEventListener('click', () => {
-  document.getElementById('downloadSelector').classList.toggle('hidden');
-  document.getElementById('downloadToggle').classList.toggle('bg-blue-600')
-})
+// Create download functions for each download button
+['pdf', 'html'].forEach(type => {
+  document.getElementById(`${type}Download`).addEventListener('click', () => {
+    const fileUrl = {
+      html: URL.createObjectURL(new File([document.getElementById('htmlEditor').value], 'temp', { type: 'text/html' })),
+      pdf: document.getElementById('pdfContainer').data,
+    }[type];
 
-document.getElementById('infoContainer').addEventListener('mouseenter', () => {
-  document.getElementById('infoSelector').classList.remove('hidden');
-  document.getElementById('infoToggle').classList.add('bg-blue-600')
-})
-document.getElementById('infoContainer').addEventListener('mouseleave', () => {
-  document.getElementById('infoSelector').classList.add('hidden');
-  document.getElementById('infoToggle').classList.remove('bg-blue-600')
-})
-document.getElementById('infoContainer').addEventListener('click', () => {
-  document.getElementById('infoSelector').classList.toggle('hidden');
-  document.getElementById('infoToggle').classList.toggle('bg-blue-600')
-})
-
-// Make a special case checker for the above, makeDropDown(parent, toggle, dropdown)
-// or makeDropDown(baseString, classAction, classValue)
-// First just make a function that adds all three event listeners, only arg should be (baseString)
-// Second, try to simplify the three event listeners will probs end up with something like:
+    if (fileUrl) {
+      const triggerDownload = document.createElement('a');
+      triggerDownload.href = fileUrl;
+      triggerDownload.download = `${document.getElementById('filename').value}.${type}`;
+      triggerDownload.click();
+    };
+  });
+});
 
 let delay;
 // Set default pdf, i.e. create a blank document
