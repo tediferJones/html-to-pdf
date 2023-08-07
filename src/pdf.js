@@ -4,14 +4,12 @@
 //    - If we get a nicer editor with vim mode working, allow user to set a default
 //      - Use localstorage to load/preserve this value
 //
-//  - Fill in the info dropdown with some useful text
+//  - Figure out how to include tailwind script tag into downloaded HTML file, 
+//    - Otherwise HTML will not be displayed properly when opened outside of our editor
 //  - Simplify HTML, icons do not need to be nested, just put the classes on the containing divs
-//  - Add a better default state, put some example text in the htmlEditor, and 'html-to-pdf' in the filename
-//    - Consider removing content var from updatePdf(), content will always be the text inside 'htmlEditor'
-//      - May need to manually call updatePdf() in the 'htmlUpload' eventListener
 //  - Renaming: 
 //    Replace all "" in the HTML file to ''
-//    Rename 'Selector' elements to ${baseString}DropDown, this just makes way more sense
+//  - Consider using a map for special case handlers, it has a built in iterator, might be cleaener than Object.keys(var).forEach()
 //
 //
 // Do we want to use NPM?  This depends on how the text editor needs to be installed
@@ -30,7 +28,8 @@
 //
 // THIS IS JUST AWESOME: http://appsweets.net/wasavi/
 
-async function updatePdf(content, renderOnce) {
+async function updatePdf(renderOnce) {
+  const content = document.getElementById('htmlEditor').value;
   // THE FIX, apparently if you run it twice, it'll just work
   // Why does this work? No body knows
   // Theory: The new tailwind classes dont get imported in time, but if you just run it again they will already been imported from the last run
@@ -55,127 +54,75 @@ async function updatePdf(content, renderOnce) {
 
 // When html file gets uploaded, set htmlEditor to its text content, and generate a pdf
 document.getElementById('htmlUpload').addEventListener('change', async () => {
-  const fileTextContent = await document.getElementById('htmlUpload').files[0].text();
-  document.getElementById('htmlEditor').value = fileTextContent;
-
+  // Extract text content from file and assing to htmlEditor input
+  document.getElementById('htmlEditor').value = await document.getElementById('htmlUpload').files[0].text();
   // remove '.html' and assign to filename input
   document.getElementById('filename').value = document.getElementById('htmlUpload').files[0].name.slice(0, -5);
-
-  updatePdf(fileTextContent);
+  updatePdf();
 });
 
 // Automatically re-render PDF after user stops typing for a given amount of time
 document.getElementById('htmlEditor').addEventListener('input', () => {
   if (delay) clearTimeout(delay);
   delay = setTimeout(() => {
-    updatePdf(document.getElementById('htmlEditor').value);
+    updatePdf();
   }, 2000);
 });
 
 // Configure eventListeners for dropdowns
-const casesV4 = {
+const events = {
   mouseenter: (baseString) => {
-    document.getElementById(`${baseString}Selector`).classList.remove('hidden');
+    document.getElementById(`${baseString}DropDown`).classList.remove('hidden');
     document.getElementById(`${baseString}Toggle`).classList.add('bg-blue-600');
+    baseStrings.filter(item => item !== baseString).forEach(otherDropDown => {
+      document.getElementById(`${otherDropDown}DropDown`).classList.add('hidden');
+      document.getElementById(`${otherDropDown}Toggle`).classList.remove('bg-blue-600');
+    });
   },
   mouseleave: (baseString) => {
-    document.getElementById(`${baseString}Selector`).classList.add('hidden');
+    document.getElementById(`${baseString}DropDown`).classList.add('hidden');
     document.getElementById(`${baseString}Toggle`).classList.remove('bg-blue-600');
   },
   click: (baseString) => {
-    document.getElementById(`${baseString}Selector`).classList.toggle('hidden');
+    document.getElementById(`${baseString}DropDown`).classList.toggle('hidden');
     document.getElementById(`${baseString}Toggle`).classList.toggle('bg-blue-600');
     baseStrings.filter(item => item !== baseString).forEach(otherDropDown => {
-      document.getElementById(`${otherDropDown}Selector`).classList.add('hidden');
+      document.getElementById(`${otherDropDown}DropDown`).classList.add('hidden');
       document.getElementById(`${otherDropDown}Toggle`).classList.remove('bg-blue-600');
     });
   },
 };
 const baseStrings = ['upload', 'download', 'info'];
 baseStrings.forEach(baseString => {
-  Object.keys(casesV4).forEach(event => {
+  Object.keys(events).forEach(event => {
     document.getElementById(`${baseString}Container`).addEventListener(event, () => {
-      casesV4[event](baseString);
+      events[event](baseString);
     });
   });
 });
 
-// Create download functions for each download button
-['pdf', 'html'].forEach(type => {
-  document.getElementById(`${type}Download`).addEventListener('click', () => {
-    const fileUrl = {
-      html: URL.createObjectURL(new File([document.getElementById('htmlEditor').value], 'temp', { type: 'text/html' })),
-      pdf: document.getElementById('pdfContainer').data,
-    }[type];
-
-    if (fileUrl) {
-      const triggerDownload = document.createElement('a');
-      triggerDownload.href = fileUrl;
-      triggerDownload.download = `${document.getElementById('filename').value}.${type}`;
-      triggerDownload.click();
-    };
+// Create functions to download each filetype
+const fileUrl = {
+  html: () => URL.createObjectURL(new File([document.getElementById('htmlEditor').value], 'temp', { type: 'text/html' })),
+  pdf: () => document.getElementById('pdfContainer').data,
+};
+Object.keys(fileUrl).forEach(fileType => {
+  document.getElementById(`${fileType}Download`).addEventListener('click', () => {
+    const triggerDownload = document.createElement('a');
+    triggerDownload.href = fileUrl[fileType]();
+    triggerDownload.download = `${document.getElementById('filename').value}.${fileType}`;
+    triggerDownload.click();
   });
 });
 
 let delay;
 // Set default pdf, i.e. create a blank document
-updatePdf('', true);
+document.getElementById('htmlEditor').value = `<div class='m-4'>
+  <div class='bg-orange-500 text-gray-300 p-8 text-4xl flex justify-center'>Hello World</div>
+  <div class='m-4 bg-red-400 p-4 flex justify-between'>
+    <h1 class='flex items-center'>SOME NEW CONTENT</h1>
+    <a class='p-2 bg-blue-400' href='https://www.google.com'>a link to google</a>
+  </div>
+</div>`
+updatePdf(true);
 
-
-
-// DEPRECATED STUFF
-
-// Create html file and queue download
-// document.getElementById('htmlDownload').addEventListener('click', () => {
-//   console.log('Download textarea input as html file')
-// 
-// })
-
-// USING WORKER FOR html2pdf()
-// let worker = html2pdf()
-// // LOOK AT THE prototype OF THIS VAR
-// console.log(worker)
-// console.log(worker.from('hell world', 'string').outputPdf().then(data => console.log('WORKER DATA',data)))
-
-// Add event listener for when html file gets uploaded
-// document.getElementById('htmlUpload').addEventListener('change', () => {
-//   document.getElementById('htmlUpload').files[0].text().then(async fileTextContent => {
-//     document.getElementById('htmlEditor').value = fileTextContent;
-//     // const pdfData = await html2pdf().from("<h1 class='bg-red-600'>Hello World</h1>", 'string').outputPdf('bloburi')
-//     // const pdfData = await html2pdf().from(parentDiv, 'element').outputPdf('bloburi')
-// 
-//     // THIS IS LITERALLY ALL WE NEED
-//     console.log(document.getElementById('htmlEditor').value)
-//     const pdfData = await html2pdf().from(document.getElementById('htmlEditor').value, 'string').outputPdf('bloburi')
-//     // These options dont seem to do anything
-//     // {
-//     //   margin:       1,
-//     //   filename:     'myfile.pdf',
-//     //   image:        { type: 'jpeg', quality: 0.98 },
-//     //   html2canvas:  { scale: 2 },
-//     //   jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-//     // })
-//     console.log(pdfData)
-//     document.getElementById('pdfContainer').data = pdfData;
-//   })
-// })
-
-// // Add event listener for when pdf file gets uploaded
-// let pdfUpload = document.getElementById('pdfUpload')
-// pdfUpload.addEventListener('change', () => {
-//   console.log('new file selected')
-//   
-//   console.log(document.getElementById('pdfUpload').files)
-//   const test = URL.createObjectURL(document.getElementById('pdfUpload').files[0])
-//   console.log(test)
-//   document.getElementById('pdfContainer').data = test;
-// })
-// console.log(pdfUpload)
-
-// function readHtmlFile() {
-//   // let fileReader = new FileReader();
-//   let testFile = new File(['PUT INPUT TEXT HERE this is a test of some more data'], 'someNewFilename.html', { type: 'text/html' })
-//   testFile.text().then(data => console.log(data))
-//   // console.log(fileReader.readAsText(testFile));
-// }
-// readHtmlFile()

@@ -20,24 +20,35 @@
     <script is:inline src='https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js'></script>
     */}
 	</head>
-  <body class='h-full w-full flex flex-col md:flex-row'>
+  <body class='h-full w-full flex flex-col lg:flex-row'>
     <div class='flex h-full flex-1 flex-col'>
       <span class='flex justify-between bg-gray-700 relative text-white'>
         <div class='my-auto'>
           <label class='p-2' for='filename'>Filename:</label>
-          <input class='text-black my-2' id='filename' type='text' />
+          <input class='text-black my-2' id='filename' type='text' value='html-to-pdf'/>
         </div>
         <div class='flex'>
           <div id='infoContainer'>
             <button class='py-2 px-4 h-full fa-solid fa-circle-info' id='infoToggle'></button>
-            <div class='hidden absolute right-0 bg-blue-600 w-1/2 p-4' id='infoSelector'>
-              <h1>Hello World</h1>
+            <div class='hidden absolute right-0 bg-blue-600 w-1/2 p-4' id='infoDropDown'>
+              <h1 class=''>This website allows you to use HTML to create and style a PDF document</h1>
+              <ul class='list-disc py-2 px-4'>
+                <li>Styling can be done via tailwind classes, or inline styles</li>
+                <li>PDF output supports links</li>
+                <li>Existing HTML files can be be uploaded, edited, and converted</li>
+                <li>You can download the current HTML or PDF file using the download dropdown</li>
+              </ul>
+              <p class='text-center'>Want to see the code?</p>
+              <a class='bg-gray-700 p-2 text-center block cursor-pointer' href='https://github.com/tediferJones/html-to-pdf'>
+                <i class="fa-brands fa-github fa-xl"></i>
+                <span>GitHub</span>
+              </a>
             </div>
           </div>
 
           <div id='uploadContainer'>
             <button class='py-2 px-4 h-full fas fa-cloud-upload-alt' id='uploadToggle'></button>
-            <div class='hidden absolute right-0 bg-blue-600 p-4' id='uploadSelector'>
+            <div class='hidden absolute right-0 bg-blue-600 p-4' id='uploadDropDown'>
               <label class='m-auto' for='htmlUpload'>HTML:</label>
               <input class='m-auto flex-[2]' id='htmlUpload' type='file' accept='.html'/>
             </div>
@@ -45,7 +56,7 @@
 
           <div id='downloadContainer'>
             <button class='py-2 px-4 h-full fas fa-cloud-download-alt' id='downloadToggle'></button>
-            <div class='hidden absolute right-0 bg-blue-600 flex flex-col' id='downloadSelector'>
+            <div class='hidden absolute right-0 bg-blue-600' id='downloadDropDown'>
               <button class='py-4 px-6 flex' id='htmlDownload'>
                 <i class="fa-solid fa-file-code fa-2xl cursor-pointer self-center pr-4"></i>
                 <span class='w-full'>HTML</span>
