@@ -4,9 +4,6 @@
 //    - If we get a nicer editor with vim mode working, allow user to set a default
 //      - Use localstorage to load/preserve this value
 //
-//  - Figure out how to include tailwind script tag into downloaded HTML file, 
-//    - Otherwise HTML will not be displayed properly when opened outside of our editor
-//  - Simplify HTML, icons do not need to be nested, just put the classes on the containing divs
 //  - Renaming: 
 //    Replace all "" in the HTML file to ''
 //  - Consider using a map for special case handlers, it has a built in iterator, might be cleaener than Object.keys(var).forEach()
@@ -101,9 +98,11 @@ baseStrings.forEach(baseString => {
   });
 });
 
-// Create functions to download each filetype
+// Create functions to download each filetype, and add tailwind script tag to HTML download
 const fileUrl = {
-  html: () => URL.createObjectURL(new File([document.getElementById('htmlEditor').value], 'temp', { type: 'text/html' })),
+  html: () => URL.createObjectURL(new File([
+    '<script src="https://cdn.tailwindcss.com"></script>' + document.getElementById('htmlEditor').value
+  ], 'temp', { type: 'text/html' })),
   pdf: () => document.getElementById('pdfContainer').data,
 };
 Object.keys(fileUrl).forEach(fileType => {
@@ -116,7 +115,7 @@ Object.keys(fileUrl).forEach(fileType => {
 });
 
 let delay;
-// Set default pdf, i.e. create a blank document
+// Set default state for htmlEditor and pdfContainer
 document.getElementById('htmlEditor').value = `<div class='m-4'>
   <div class='bg-orange-500 text-gray-300 p-8 text-4xl flex justify-center'>Hello World</div>
   <div class='m-4 bg-red-400 p-4 flex justify-between'>
