@@ -26,8 +26,8 @@
 // THIS IS JUST AWESOME: http://appsweets.net/wasavi/
 
 async function updatePdf(renderOnce) {
-  const content = document.getElementById('htmlEditor').value;
-  // THE FIX, apparently if you run it twice, it'll just work
+  const content = editor.getValue()
+
   // Why does this work? No body knows
   // Theory: The new tailwind classes dont get imported in time, but if you just run it again they will already been imported from the last run
   // This seems to hold true because classes that have already been called in the HTML are availble on the first run
@@ -52,19 +52,20 @@ async function updatePdf(renderOnce) {
 // When html file gets uploaded, set htmlEditor to its text content, and generate a pdf
 document.getElementById('htmlUpload').addEventListener('change', async () => {
   // Extract text content from file and assing to htmlEditor input
-  document.getElementById('htmlEditor').value = await document.getElementById('htmlUpload').files[0].text();
+  // document.getElementById('htmlEditor').value = await document.getElementById('htmlUpload').files[0].text();
+  editor.setValue(await document.getElementById('htmlUpload').files[0].text());
   // remove '.html' and assign to filename input
   document.getElementById('filename').value = document.getElementById('htmlUpload').files[0].name.slice(0, -5);
   updatePdf();
 });
 
 // Automatically re-render PDF after user stops typing for a given amount of time
-document.getElementById('htmlEditor').addEventListener('input', () => {
-  if (delay) clearTimeout(delay);
-  delay = setTimeout(() => {
-    updatePdf();
-  }, 2000);
-});
+// document.getElementById('htmlEditor').addEventListener('input', () => {
+//   if (delay) clearTimeout(delay);
+//   delay = setTimeout(() => {
+//     updatePdf();
+//   }, 2000);
+// });
 
 // Configure eventListeners for dropdowns
 const events = {
@@ -91,6 +92,7 @@ const events = {
 };
 const baseStrings = ['upload', 'download', 'info'];
 baseStrings.forEach(baseString => {
+  document.getElementById(`${baseString}Container`).style.zIndex = 1;
   Object.keys(events).forEach(event => {
     document.getElementById(`${baseString}Container`).addEventListener(event, () => {
       events[event](baseString);
@@ -101,7 +103,7 @@ baseStrings.forEach(baseString => {
 // Create functions to download each filetype, and add tailwind script tag to HTML download
 const fileUrl = {
   html: () => URL.createObjectURL(new File([
-    '<script src="https://cdn.tailwindcss.com"></script>' + document.getElementById('htmlEditor').value
+    '<script src="https://cdn.tailwindcss.com"></script>' + editor.getValue()
   ], 'temp', { type: 'text/html' })),
   pdf: () => document.getElementById('pdfContainer').data,
 };
@@ -115,19 +117,26 @@ Object.keys(fileUrl).forEach(fileType => {
 });
 
 let delay;
-// Set default state for htmlEditor and pdfContainer
-document.getElementById('htmlEditor').value = `<div class='m-4'>
-  <div class='bg-orange-500 text-gray-300 p-8 text-4xl flex justify-center'>Hello World</div>
-  <div class='m-4 bg-red-400 p-4 flex justify-between'>
-    <h1 class='flex items-center'>SOME NEW CONTENT</h1>
-    <a class='p-2 bg-blue-400' href='https://www.google.com'>a link to google</a>
-  </div>
-</div>`
-updatePdf(true);
 
-// console.log(CodeMirror)
-console.log(CodeMirror.hint)
-CodeMirror(document.getElementById('newEditor'), {
+document.getElementById('vimMode').checked = localStorage.getItem('vimMode');
+document.getElementById('vimMode').addEventListener('change', () => {
+  // console.log('toggleVimMode')
+  // console.log(editor)
+  // editor.options.keyMap = 'vim'
+  // localStorage.setItem('vimMode', true);
+  if (localStorage.getItem('vimMode')) {
+    localStorage.removeItem('vimMode');
+    editor.options.keyMap = 'default';
+  } else {
+    localStorage.setItem('vimMode', true);
+    editor.options.keyMap = 'vim';
+  }
+  location.reload()
+})
+
+// Set default state for htmlEditor and pdfContainer
+console.log(document.getElementById('vimMode').value)
+const editor = CodeMirror(document.getElementById('newEditor'), {
   lineNumbers: true,
   tabSize: 2,
   mode: 'text/html',
@@ -136,10 +145,12 @@ CodeMirror(document.getElementById('newEditor'), {
   },
   hintOptions: {
     hint: CodeMirror.hint.auto,  // Use HTML-specific autocompletion
-    completeSingle: false       // Show multiple suggestions without having to explicitly select
+    completeSingle: true       // Show multiple suggestions without having to explicitly select
   },
   // Toggle this depending on a localStorage var
-  keyMap: 'vim',
+  // keyMap: 'vim',
+  keyMap: (document.getElementById('vimMode').checked ? 'vim' : 'default'),
+  theme: 'ayu-dark',
   value: `<div class='m-4'>
   <div class='bg-orange-500 text-gray-300 p-8 text-4xl flex justify-center'>Hello World</div>
   <div class='m-4 bg-red-400 p-4 flex justify-between'>
@@ -148,5 +159,12 @@ CodeMirror(document.getElementById('newEditor'), {
   </div>
 </div>
 <!-- Press Ctrl + Space for autocomplete -->`
-})
-// document.getElementById('newEditor').
+});
+document.getElementById('newEditor').children[0].style.height = '100%';
+editor.on('change', () => {
+  if (delay) clearTimeout(delay);
+  delay = setTimeout(() => {
+    updatePdf();
+  }, 2000);
+});
+updatePdf();
