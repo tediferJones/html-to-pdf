@@ -120,22 +120,16 @@ let delay;
 
 document.getElementById('vimMode').checked = localStorage.getItem('vimMode');
 document.getElementById('vimMode').addEventListener('change', () => {
-  // console.log('toggleVimMode')
-  // console.log(editor)
-  // editor.options.keyMap = 'vim'
-  // localStorage.setItem('vimMode', true);
   if (localStorage.getItem('vimMode')) {
     localStorage.removeItem('vimMode');
-    editor.options.keyMap = 'default';
+    editor.setOption('keyMap', 'default')
   } else {
     localStorage.setItem('vimMode', true);
-    editor.options.keyMap = 'vim';
+    editor.setOption('keyMap', 'vim')
   }
-  location.reload()
 })
 
 // Set default state for htmlEditor and pdfContainer
-console.log(document.getElementById('vimMode').value)
 const editor = CodeMirror(document.getElementById('newEditor'), {
   lineNumbers: true,
   tabSize: 2,
@@ -144,11 +138,9 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
     "Ctrl-Space": "autocomplete"  // Enable autocomplete with Ctrl+Space
   },
   hintOptions: {
-    hint: CodeMirror.hint.auto,  // Use HTML-specific autocompletion
-    completeSingle: true       // Show multiple suggestions without having to explicitly select
+    hint: CodeMirror.hint.html,  // Use HTML-specific autocompletion
+    completeSingle: true
   },
-  // Toggle this depending on a localStorage var
-  // keyMap: 'vim',
   keyMap: (document.getElementById('vimMode').checked ? 'vim' : 'default'),
   theme: 'ayu-dark',
   value: `<div class='m-4'>
@@ -160,6 +152,7 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
 </div>
 <!-- Press Ctrl + Space for autocomplete -->`
 });
+// console.log(editor.showHint())
 document.getElementById('newEditor').children[0].style.height = '100%';
 editor.on('change', () => {
   if (delay) clearTimeout(delay);
@@ -168,3 +161,16 @@ editor.on('change', () => {
   }, 2000);
 });
 updatePdf();
+// let delay2;
+// editor.on('change', (cm) => {
+//   console.log('AUTOCOMPLETE')
+// 
+//   // editor.showHint()
+//   // CodeMirror.showHint(cm, () => console.log('idkTest'), {
+//   //   completeSingle: false, // Show suggestions on each key press
+//   // });
+//   if (delay2) clearTimeout(delay2);
+//   delay2 = setTimeout(() => {
+//     editor.showHint()
+//   }, 200);
+// })
