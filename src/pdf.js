@@ -1,12 +1,24 @@
 // TO DO:
+//  - Move this whole project from astro to a basic npm package, use esBuild for bundling
+//    - Theoretically, all we need is index.html, index.js, and package.json
+//    - Vite uses esBuild, vite is what nextJS uses, but vite also does a whole bunch of other random magic shit
 //  - Consider adding a customizable css file that gets bundled into our html, add a tab to toolbar to edit this file
 //  - [ DONE ] Add a nicer editor, see list of possible editors below
-//    - If we get a nicer editor with vim mode working, allow user to set a default
-//      - Use localstorage to load/preserve this value
+//    - [ DONE ] If we get a nicer editor with vim mode working, allow user to set a default
+//      - [ DONE ] Use localstorage to load/preserve this value
+//  - Allow user to manually set the delay for updatePdf when user stops typing, 
+//    - Also give user option to disable it entirely and allow them to click a button to update the pdf
+//  - Move the filename input into the download dropdown, thats the only place it is relevant
+//  - Create a 'settings' dropdown that will allow user to configure html2pdf() options,
+//    - Should probably also move the 'VimMode' checkbox to this new 'settings' dropdown
+//  - Figure out how to simplify the quick fix for html2pdf()
+//    - Doesnt have to convert from string -> pdf, maybe just toContainer or toCanvas
+//    - All Options: https://github.com/eKoopmans/html2pdf.js#worker-api
+//
 //
 //  - Renaming: 
 //    Replace all "" in the HTML file to ''
-//  - Consider using a map for special case handlers, it has a built in iterator, might be cleaener than Object.keys(var).forEach()
+//  - Consider using a map for special case handlers, it has a built in iterator, might be cleaner than Object.keys(var).forEach()
 //
 //
 // Do we want to use NPM?  This depends on how the text editor needs to be installed
@@ -15,14 +27,6 @@
 // - Once decided if we are going npm or vanilla JS, delete extra components like oldApp.jsx and counter.tsx
 // - If we end up going with npm, we can give jsDoc a try
 
-// Possible Editors:
-// VIM: https://github.com/coolwanglu/vim.js or https://wang-lu.com/vim.js/asyncify/vim.html
-// Another vim option: https://github.com/toplan/Vim.js
-// VSCode-ish: https://ace.c9.io/
-// VSCode: https://microsoft.github.io/monaco-editor/
-// THE SOLUTION TO ALL: https://codemirror.net/examples/autocompletion/
-//  - And this adds a vim mode: https://codemirror.net/5/demo/vim.html OR https://github.com/replit/codemirror-vim
-//
 // THIS IS JUST AWESOME: http://appsweets.net/wasavi/
 
 async function updatePdf(renderOnce) {
@@ -35,18 +39,18 @@ async function updatePdf(renderOnce) {
     await html2pdf().from(content, 'string').outputPdf('bloburi');
   }
   // Update the pdf object container
-  const pdfUrl = await html2pdf().from(content, 'string').outputPdf('bloburi');
+  // const pdfUrl = await html2pdf().from(content, 'string').outputPdf('bloburi');
+  // Default options can be found here: 
+  // https://github.com/eKoopmans/html2pdf.js#options
+  const pdfUrl = await html2pdf().set({
+    margin:       0.5,
+    image:        { type: 'jpeg', quality: 1 },
+    // Higher scale = higher quality
+    html2canvas:  { scale: 4 },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  }).from(content, 'string').outputPdf('bloburi');
   document.getElementById('pdfContainer').data = pdfUrl;
   document.getElementById('pdfDisplayError').href = pdfUrl; 
-
-  // These options dont seem to do anything
-  // {
-  //   margin:       1,
-  //   filename:     'myfile.pdf',
-  //   image:        { type: 'jpeg', quality: 0.98 },
-  //   html2canvas:  { scale: 2 },
-  //   jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  // })
 };
 
 // When html file gets uploaded, set htmlEditor to its text content, and generate a pdf
@@ -58,14 +62,6 @@ document.getElementById('htmlUpload').addEventListener('change', async () => {
   document.getElementById('filename').value = document.getElementById('htmlUpload').files[0].name.slice(0, -5);
   updatePdf();
 });
-
-// Automatically re-render PDF after user stops typing for a given amount of time
-// document.getElementById('htmlEditor').addEventListener('input', () => {
-//   if (delay) clearTimeout(delay);
-//   delay = setTimeout(() => {
-//     updatePdf();
-//   }, 2000);
-// });
 
 // Configure eventListeners for dropdowns
 const events = {
@@ -135,7 +131,7 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
   tabSize: 2,
   mode: 'text/html',
   extraKeys: {
-    "Ctrl-Space": "autocomplete"  // Enable autocomplete with Ctrl+Space
+    "Tab": "autocomplete"  // Enable autocomplete with Ctrl+Space
   },
   hintOptions: {
     hint: CodeMirror.hint.html,  // Use HTML-specific autocompletion
@@ -143,6 +139,8 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
   },
   keyMap: (document.getElementById('vimMode').checked ? 'vim' : 'default'),
   theme: 'ayu-dark',
+  autoCloseTags: true,
+  matchTags: {bothTags: true},
   value: `<div class='m-4'>
   <div class='bg-orange-500 text-gray-300 p-8 text-4xl flex justify-center'>Hello World</div>
   <div class='m-4 bg-red-400 p-4 flex justify-between'>
@@ -152,8 +150,12 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
 </div>
 <!-- Press Ctrl + Space for autocomplete -->`
 });
+console.log('EDITOR', editor);
 // console.log(editor.showHint())
 document.getElementById('newEditor').children[0].style.height = '100%';
+document.getElementById('newEditor').children[0].style.zIndex = 'auto';
+
+// Delay updatePdf() until user stops typing
 editor.on('change', () => {
   if (delay) clearTimeout(delay);
   delay = setTimeout(() => {
