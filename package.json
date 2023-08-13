@@ -1,26 +1,15 @@
 {
-  "name": "html-to-pdf",
-  "type": "module",
-  "version": "0.0.1",
+  "name": "basic-structure-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "live-server --open=src/ --port=3000 --host=localhost"
   },
-  "dependencies": {
-    "@astrojs/react": "^2.2.1",
-    "@astrojs/tailwind": "^4.0.0",
-    "@types/react": "^18.2.17",
-    "@types/react-dom": "^18.2.7",
-    "astro": "^2.9.6",
-    "html-pdf-client": "^1.0.2",
-    "pdfjs-dist": "^3.9.179",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-pdf": "^7.3.0",
-    "simple-pdf-viewer": "^2.0.3",
-    "tailwindcss": "^3.3.3"
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "live-server": "^1.2.2"
   }
 }

@@ -1,7 +1,8 @@
 // TO DO:
-//  - Move this whole project from astro to a basic npm package, use esBuild for bundling
-//    - Theoretically, all we need is index.html, index.js, and package.json
-//    - Vite uses esBuild, vite is what nextJS uses, but vite also does a whole bunch of other random magic shit
+//  - [ DONE ] Move this whole project from astro to a basic npm package, use esBuild for bundling
+//    - [ DONE ] Theoretically, all we need is index.html, index.js, and package.json
+//    - [ DONE ] Vite uses esBuild, vite is what nextJS uses, but vite also does a whole bunch of other random magic shit
+//    - Still need to install esBuild and try to build to the current site
 //  - Consider adding a customizable css file that gets bundled into our html, add a tab to toolbar to edit this file
 //  - [ DONE ] Add a nicer editor, see list of possible editors below
 //    - [ DONE ] If we get a nicer editor with vim mode working, allow user to set a default
@@ -142,15 +143,19 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
   autoCloseTags: true,
   matchTags: {bothTags: true},
   value: `<div class='m-4'>
-  <div class='bg-orange-500 text-gray-300 p-8 text-4xl flex justify-center'>Hello World</div>
+  <div class='bg-orange-500 text-gray-300 p-8 text-4xl flex justify-center'>
+    Hello World
+  </div>
   <div class='m-4 bg-red-400 p-4 flex justify-between'>
     <h1 class='flex items-center'>SOME NEW CONTENT</h1>
-    <a class='p-2 bg-blue-400' href='https://www.google.com'>a link to google</a>
+    <a class='p-2 bg-blue-400' 
+      href='https://www.google.com'
+    >a link to google</a>
   </div>
 </div>
 <!-- Press Ctrl + Space for autocomplete -->`
 });
-console.log('EDITOR', editor);
+// console.log('EDITOR', editor);
 // console.log(editor.showHint())
 document.getElementById('newEditor').children[0].style.height = '100%';
 document.getElementById('newEditor').children[0].style.zIndex = 'auto';
