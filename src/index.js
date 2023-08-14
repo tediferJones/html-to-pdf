@@ -1,3 +1,20 @@
+// const html2pdf = require('html2pdf.js');
+// import html2pdf from 'html2pdf.js';
+//
+// import test from './test';
+console.log(test)
+// DONT USE A BUNDLER, it will only cause you problems
+// Just use script tags, fuck the user, if their internet is shit they can go get fucked
+// Delete esBuild and html2pdf(), and delete build scripts from package.json
+// Delete dist folder, src is the new dist folder since we dont use bundling
+// This is still better than use astro
+//
+// Is it still possible to break up this js file into smaller files?
+// You could try importing files in the JS, and if that doesn't work try importing from the HTML
+// 
+// Can only import seperate files in the HTML, but all scripts can access the scope of all other scripts
+// i.e. if we define a test var in test.js, it can be accessed by any script after test.js has been read
+
 // TO DO:
 //  - [ DONE ] Move this whole project from astro to a basic npm package, use esBuild for bundling
 //    - [ DONE ] Theoretically, all we need is index.html, index.js, and package.json
@@ -30,6 +47,7 @@
 
 // THIS IS JUST AWESOME: http://appsweets.net/wasavi/
 
+console.log('Will it update?')
 async function updatePdf(renderOnce) {
   const content = editor.getValue()
 

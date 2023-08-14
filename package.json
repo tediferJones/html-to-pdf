@@ -5,11 +5,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "live-server --open=src/ --port=3000 --host=localhost"
+    "dev": "live-server --open=src/ --port=3000 --host=localhost",
+    "build": "esbuild src/index.js --bundle --outfile=dist/app.js",
+    "idk": "esbuild src/index.js --bundle --outdir=dist --watch --servedir=dist"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "live-server": "^1.2.2"
+  },
+  "dependencies": {
+    "esbuild": "^0.19.1",
+    "html2pdf.js": "^0.9.3"
   }
 }
