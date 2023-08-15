@@ -32,6 +32,9 @@ console.log(test)
 //  - Figure out how to simplify the quick fix for html2pdf()
 //    - Doesnt have to convert from string -> pdf, maybe just toContainer or toCanvas
 //    - All Options: https://github.com/eKoopmans/html2pdf.js#worker-api
+//  - Use a map instead of obj to create download links
+//    - Then you dont have to define a variable and can just directly chain a forEach loop
+//  - Move setupEditor, setupDropDowns, setupDownloads, to their own files
 //
 //
 //  - Renaming: 
@@ -47,7 +50,6 @@ console.log(test)
 
 // THIS IS JUST AWESOME: http://appsweets.net/wasavi/
 
-console.log('Will it update?')
 async function updatePdf(renderOnce) {
   const content = editor.getValue()
 
@@ -83,34 +85,62 @@ document.getElementById('htmlUpload').addEventListener('change', async () => {
 });
 
 // Configure eventListeners for dropdowns
-const events = {
-  mouseenter: (baseString) => {
+// const events = {
+//   mouseenter: (baseString) => {
+//     document.getElementById(`${baseString}DropDown`).classList.remove('hidden');
+//     document.getElementById(`${baseString}Toggle`).classList.add('bg-blue-600');
+//     baseStrings.filter(item => item !== baseString).forEach(otherDropDown => {
+//       document.getElementById(`${otherDropDown}DropDown`).classList.add('hidden');
+//       document.getElementById(`${otherDropDown}Toggle`).classList.remove('bg-blue-600');
+//     });
+//   },
+//   mouseleave: (baseString) => {
+//     document.getElementById(`${baseString}DropDown`).classList.add('hidden');
+//     document.getElementById(`${baseString}Toggle`).classList.remove('bg-blue-600');
+//   },
+//   // click: (baseString) => {
+//   //   document.getElementById(`${baseString}DropDown`).classList.toggle('hidden');
+//   //   document.getElementById(`${baseString}Toggle`).classList.toggle('bg-blue-600');
+//   //   baseStrings.filter(item => item !== baseString).forEach(otherDropDown => {
+//   //     document.getElementById(`${otherDropDown}DropDown`).classList.add('hidden');
+//   //     document.getElementById(`${otherDropDown}Toggle`).classList.remove('bg-blue-600');
+//   //   });
+//   // },
+// };
+const baseStrings = ['upload', 'download', 'info', 'settings'];
+// third arg of forEach is the array being looped over, 
+// thus we can call this loop directly without defining a variable
+baseStrings.forEach(baseString => {
+  // codeMirror scroll bar has z-index = 6, and we want dropDown to display on top of codeMirror scrollbar 
+  // Alternatively just fetch the element with the highest index, and add 1 to that index to get desired zIndex for dropdowns
+  // console.log(document.getElementsByClassName('CodeMirror-vscrollbar')[0].style.zIndex)
+  document.getElementById(`${baseString}Container`).style.zIndex = 7;
+  // Object.keys(events).forEach(event => {
+  //   document.getElementById(`${baseString}Container`).addEventListener(event, () => {
+  //     events[event](baseString);
+  //   });
+  // });
+
+  document.getElementById(`${baseString}Container`).addEventListener('mouseenter', () => {
     document.getElementById(`${baseString}DropDown`).classList.remove('hidden');
     document.getElementById(`${baseString}Toggle`).classList.add('bg-blue-600');
     baseStrings.filter(item => item !== baseString).forEach(otherDropDown => {
       document.getElementById(`${otherDropDown}DropDown`).classList.add('hidden');
       document.getElementById(`${otherDropDown}Toggle`).classList.remove('bg-blue-600');
     });
-  },
-  mouseleave: (baseString) => {
+  });
+
+  document.getElementById(`${baseString}Container`).addEventListener('mouseleave', () => {
     document.getElementById(`${baseString}DropDown`).classList.add('hidden');
     document.getElementById(`${baseString}Toggle`).classList.remove('bg-blue-600');
-  },
-  click: (baseString) => {
+  });
+
+  document.getElementById(`${baseString}Toggle`).addEventListener('click', () => {
     document.getElementById(`${baseString}DropDown`).classList.toggle('hidden');
     document.getElementById(`${baseString}Toggle`).classList.toggle('bg-blue-600');
     baseStrings.filter(item => item !== baseString).forEach(otherDropDown => {
       document.getElementById(`${otherDropDown}DropDown`).classList.add('hidden');
       document.getElementById(`${otherDropDown}Toggle`).classList.remove('bg-blue-600');
-    });
-  },
-};
-const baseStrings = ['upload', 'download', 'info'];
-baseStrings.forEach(baseString => {
-  document.getElementById(`${baseString}Container`).style.zIndex = 1;
-  Object.keys(events).forEach(event => {
-    document.getElementById(`${baseString}Container`).addEventListener(event, () => {
-      events[event](baseString);
     });
   });
 });
@@ -130,8 +160,6 @@ Object.keys(fileUrl).forEach(fileType => {
     triggerDownload.click();
   });
 });
-
-let delay;
 
 document.getElementById('vimMode').checked = localStorage.getItem('vimMode');
 document.getElementById('vimMode').addEventListener('change', () => {
@@ -171,7 +199,7 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
     >a link to google</a>
   </div>
 </div>
-<!-- Press Ctrl + Space for autocomplete -->`
+<!-- Press Tab for autocomplete -->`
 });
 // console.log('EDITOR', editor);
 // console.log(editor.showHint())
@@ -179,6 +207,7 @@ document.getElementById('newEditor').children[0].style.height = '100%';
 document.getElementById('newEditor').children[0].style.zIndex = 'auto';
 
 // Delay updatePdf() until user stops typing
+let delay;
 editor.on('change', () => {
   if (delay) clearTimeout(delay);
   delay = setTimeout(() => {
@@ -199,3 +228,8 @@ updatePdf();
 //     editor.showHint()
 //   }, 200);
 // })
+
+document.getElementById('html2pdfSettings').addEventListener('click', (e) => {
+  e.preventDefault();
+  console.log('settings submit handler')
+})

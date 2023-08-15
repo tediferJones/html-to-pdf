@@ -44,18 +44,17 @@
   <body class='h-full w-full flex flex-col lg:flex-row'>
     <div class='flex h-full w-full lg:w-1/2 flex-col'>
       <span class='flex justify-between bg-gray-700 relative text-white'>
+        <!--
         <div class='my-auto'>
           <label class='p-2' for='filename'>Filename:</label>
           <input class='text-black my-2' id='filename' type='text' value='html-to-pdf'/>
         </div>
+        -->
+        <h1 class='my-auto mx-4'>HTML to PDF</h1>
         <div class='flex'>
           <div id='infoContainer'>
             <button class='py-2 px-4 h-full fa-solid fa-circle-info' id='infoToggle'></button>
             <div class='hidden absolute right-0 bg-blue-600 w-1/2 p-4' id='infoDropDown'>
-              <div class='w-full text-center py-2'>
-                <input class='accent-gray-700' id='vimMode' type='checkbox'></input>
-                <label for='vimMode'>Enable Vim Mode</label>
-              </div>
               <h1>This website allows you to use HTML to create and style a PDF document</h1>
               <ul class='list-disc py-2 px-4'>
                 <li>Styling can be done via tailwind classes, or inline styles</li>
@@ -71,6 +70,44 @@
             </div>
           </div>
 
+          <div id='settingsContainer'>
+            <button class='py-2 px-4 fa-solid fa-gear' id='settingsToggle'></button>
+            <div class='hidden absolute right-0 bg-blue-600 p-4' id='settingsDropDown'>
+              <div class='w-full text-center py-2'>
+                <input class='accent-gray-700' id='vimMode' type='checkbox'></input>
+                <label for='vimMode'>Enable Vim Mode</label>
+              </div>
+
+              <!-- NEED TO USE A FORM, this will allow us to prevent submission of weird settings (like margin -1) -->
+              <form class='flex flex-col'>
+                <h3>General</h3>
+                <label>
+                  Margin:
+                  <input class='text-black' id='margin' type='number' min='0' step='0.01' value='1'></input>
+                </label>
+                
+                <h3>Image</h3>
+                <label>
+                  Quality:
+                  <input class='text-black' id='quality' type='number' min='0' max='1' step='0.01' value='1'></input>
+                </label>
+
+                <h3>Canvas</h3>
+                <label>
+                  Scale:
+                  <input class='text-black' id='scale' type='number' min='1' value='4'></input>
+                </label>
+                <h3>PDF</h3>
+                <h3>Selectors go here, check
+                  <a href='https://rawgit.com/MrRio/jsPDF/master/docs/jsPDF.html'>HERE</a>
+                </h3>
+
+
+                <button class='p-2 mt-2 bg-gray-700' id='html2pdfSettings'>Change Settings</button>
+              </form>
+            </div>
+          </div>
+
           <div id='uploadContainer'>
             <button class='py-2 px-4 h-full fas fa-cloud-upload-alt' id='uploadToggle'></button>
             <div class='hidden absolute right-0 bg-blue-600 p-4' id='uploadDropDown'>
@@ -81,15 +118,21 @@
 
           <div id='downloadContainer'>
             <button class='py-2 px-4 h-full fas fa-cloud-download-alt' id='downloadToggle'></button>
-            <div class='hidden absolute right-0 bg-blue-600' id='downloadDropDown'>
-              <button class='py-4 px-6 flex' id='htmlDownload'>
-                <i class="fa-solid fa-file-code fa-2xl cursor-pointer self-center pr-4"></i>
-                <span class='w-full'>HTML</span>
-              </button>
-              <button class='py-4 px-6 flex' id='pdfDownload'>
-                <i class="fa-solid fa-file-pdf fa-2xl cursor-pointer self-center pr-2"></i>
-                <span class='w-full'>PDF</span>
-              </button>
+            <div class='hidden absolute right-0 bg-blue-600 p-4' id='downloadDropDown'>
+              <div class='flex flex-col'>
+                <label class='' for='filename'>Filename:</label>
+                <input class='text-black my-2 p-1' id='filename' type='text' value='html-to-pdf'/>
+              </div>
+              <div class='flex justify-evenly'>
+                <button class='py-4 px-6 flex' id='htmlDownload'>
+                  <i class="fa-solid fa-file-code fa-2xl cursor-pointer self-center pr-4"></i>
+                  <span class='w-full'>HTML</span>
+                </button>
+                <button class='py-4 px-6 flex' id='pdfDownload'>
+                  <i class="fa-solid fa-file-pdf fa-2xl cursor-pointer self-center pr-2"></i>
+                  <span class='w-full'>PDF</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
