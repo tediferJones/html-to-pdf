@@ -71,7 +71,7 @@
                 <label for='vimMode'>Enable Vim Mode</label>
               </div>
 
-              <form class='flex flex-col'>
+              <form class='flex flex-col' id='html2pdfOptions'>
                 <h3>General</h3>
                 <label for='margin'>
                   Margin:
@@ -105,10 +105,23 @@
                     <option value='in'>Inches</option>
                   </select>
                 </label>
+
+                <label for='format'>Format
+                  <select class='text-black' id='format'>
+                    <option value='letter'>Letter</option>
+                    <option value='government-letter'>Government-letter</option>
+                    <option value='legal'>Legal</option>
+                    <option value='junior-legal'>Junior-legal</option>
+                    <option value='ledger'>Ledger</option>
+                    <option value='tabloid'>Tabloid</option>
+                    <option value='credit-card'>Credit-Card</option>
+                  </select>
+                </label>
                 <h3>Selectors go here, check
                   <a href='https://rawgit.com/MrRio/jsPDF/master/docs/jsPDF.html'>HERE</a>
                 </h3>
 
+                <div id='validationErrors'></div>
 
                 <button class='p-2 mt-2 bg-gray-700' id='html2pdfSettings'>Change Settings</button>
               </form>

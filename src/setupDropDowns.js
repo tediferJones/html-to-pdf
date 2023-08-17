@@ -1,4 +1,4 @@
-const highestZIndex = window.getComputedStyle(document.getElementsByClassName('CodeMirror-vscrollbar')[0]).zIndex;
+const highestZIndex = Number(window.getComputedStyle(document.getElementsByClassName('CodeMirror-vscrollbar')[0]).zIndex);
 
 ['upload', 'download', 'info', 'settings'].forEach((baseString, index, baseStringArr) => {
   const otherDropDowns = baseStringArr.filter(baseStringOption => baseStringOption !== baseString);
