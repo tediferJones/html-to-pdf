@@ -1,60 +1,104 @@
-function checkMinMax(val, min, max) {
-  return val >= min && val <= max;
-}
-
-function checkUnion(val, arr) {
-  return arr.includes(val);
-}
-
 function getSelectOpts(elementId) {
   return Array.from(document.getElementById(elementId).children).map(item => item.value);
 }
-// console.log(getSelectOpts('format'));
+
+function generateInputs() {
+  // Consider moving this obj to the root of this script, consider how to implement default state and update state
+  const options = {
+    number: {
+      // elementIds: ['margin', 'quality', 'scale'],
+      inputs: {
+        margin: { min: 0, max: 99, step: 0.01, },
+        quality: { min: 0, max: 1, step: 0.01, },
+        scale: { min: 1, max: 16, step: 0.01, },
+      },
+      validate: (elementId) => {
+        const element = document.getElementById(elementId);
+        return Number(element.value) >= Number(element.min) && Number(element.value) <= Number(element.max);
+      },
+      errorMsg: (elementId) => {
+        const element = document.getElementById(elementId);
+        console.log(element)
+        return `${elementId} must be between ${element.min} and ${element.max}`;
+      },
+    },
+    string: {
+      inputs: {
+        units: ['pt','mm','cm','in'],
+        format: ['letter', 'government', 'legal', 'junior', 'ledger', 'tabloid'],
+        orientation: ['portrait', 'landscape'],
+      },
+      test: (elementId) => getSelectOpts(elementId).includes(document.getElementById(elementId).value),
+      error: (elementId) => `${elementId} must be one of the following: ${getSelectOpts(elementId)}`,
+    },
+  }
+  // use this object to generate the form inputs, leave only the label tags in the HTML
+}
+
+function validateOpts() {
+  // on change validate inputs, and assign result to localStorage
+  // REMOVE HTML VALIDATORS IF WE GET THIS WORKING,
+  // html validators only run on submit, these will run on every change
+  const idkOpts = {
+    number: {
+      elementIds: ['margin', 'quality', 'scale'],
+      test: (elementId) => {
+        const element = document.getElementById(elementId);
+        return Number(element.value) >= Number(element.min) && Number(element.value) <= Number(element.max);
+      },
+      error: (elementId) => {
+        const element = document.getElementById(elementId);
+        console.log(element)
+        return `${elementId} must be between ${element.min} and ${element.max}`;
+      },
+    },
+    string: {
+      elementIds: ['units', 'format', 'orientation'],
+      test: (elementId) => getSelectOpts(elementId).includes(document.getElementById(elementId).value),
+      error: (elementId) => `${elementId} must be one of the following: ${getSelectOpts(elementId)}`,
+    },
+  };
+  const errors = [];
+  Object.keys(idkOpts).forEach(type => {
+    idkOpts[type].elementIds.forEach(elementId => {
+      if (!idkOpts[type].test(elementId)) {
+        const newError = document.createElement('div');
+        newError.textContent = idkOpts[type].error(elementId);
+        errors.push(newError);
+      }
+    })
+  })
+  return errors;
+};
 
 document.getElementById('html2pdfOptions').addEventListener('change', () => {
   console.log('FORM HAS CHANGED')
-  // on change validate inputs, and assign result to localStorage
-  // localStorage.setItem('html2pdfOptions', {})
-  // test is either min/max or a string union
-  // REMOVE HTML VALIDATORS IF WE GET THIS WORKING,
-  // html validators only run on submit, these will run on every change
-
-  // const validateOptions = {
-  //   numbers: {
-  //     margin: { min: 0, max: 10 },
-  //     quality: { min: 0, max: 1 },
-  //     scale: { min: 0, max: 99 },
-  //   },
-  //   string: {
-  //     units: getSelectOpts('units'),
-  //     format: getSelectOpts('format'),
-  //     orientation: getSelectOpts('orientation'),
-  //   },
-  // };
-  // const validationErrors = [];
-  // Object.keys(validateOptions).forEach(type => {
-  //   Object.keys(validateOptions[type]).forEach(option)
-  //   if (option === 'number' && !checkMinMax(document.getElementById(option).value, validateOptions[type][option].min, validateOptions[type][option].max)) {
-  //     validationErrors.push({ option, type })
-  //   } else if (option === 'string' && !checkUnion(document.getElementById(option).value, validateOptions[type][option])) {
-  //     validationErrors.push({ option, type })
-  //   }
-  // })
-  // if (validationErrors.length) {
-  //   validationErrors.forEach(error => {
-  //     console.log(error);
-  //     let newError = document.createElement('div');
-  //     if (error.type === 'number') {
-  //       newError.textContent = `${option} must be one of the following: ${validateOptions[type][option]}`;
-  //     } else if (error.type === 'string') {
-  //       newError.textContent = `${option} must be a number between ${validateOptions[type][option].min} and ${validateOptions[type][options]}`;
-  //     }
-  //     document.getElementById('validationErrors').appendChild(newError);
-  //   })
-  // }
   
+  const errors = validateOpts();
+  console.log(errors);
+  if (errors.length) {
+    // clear old error messages if they exist
+    document.getElementById('validationErrors').innerHTML = '';
+    errors.forEach(error => document.getElementById('validationErrors').appendChild(error));
+  } else {
+    // clear old error messages if they exist
+    document.getElementById('validationErrors').innerHTML = '';
+    // set opts to localStorage, and edit updatePdf() function use localStorage options OR the default set
+    const test = document.getElementById('html2pdfOptions');
+    localStorage.setItem('html2pdfOptions', JSON.stringify({
+      margin: Number(test.margin.value),
+      image: { type: 'jpeg', quality: Number(test.quality.value) },
+      html2canvas: { scale: Number(test.scale.value) },
+      jsPDF: {
+        unit: test.units.value,
+        format: test.format.value,
+        orientation: test.orientation.value,
+      },
+    }))
+    updatePdf();
+  }
   // If values dont pass validation, then preserve previous options (i.e. dont save to localStorage)
-  updatePdf();
+  // document.getElementById('settingsToggle').click();
 })
 
 async function updatePdf(renderOnce) {
@@ -73,17 +117,22 @@ async function updatePdf(renderOnce) {
 
   // Get options from DOM before final render
   const test = document.getElementById('html2pdfOptions');
-  console.log(test.units.value);
-  const options = {
-    margin: Number(test.margin.value),
-    image: { type: 'jpeg', quality: Number(test.quality.value) },
-    html2canvas: { scale: Number(test.scale.value) },
+  // console.log(test.units.value);
+  console.log('HTML2PDF OPTIONS')
+  console.log(localStorage.getItem('html2pdfOptions'));
+  // To restore default options, just delete html2pdfOptions
+  const options = JSON.parse(localStorage.getItem('html2pdfOptions')) || {
+    margin: 1,
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: { scale: 4 },
     jsPDF: {
-      unit: test.units.value,
-      format: test.format.value,
-      orientation: test.orientation.value,
-    }
-  }
+      unit: 'in',
+      format: 'letter',
+      orientation: 'portrait',
+    },
+  };
+  console.log("THESE ARE THE FINAL OPTIONS")
+  console.log(options)
 
   const pdfUrl = await html2pdf().set(options).from(content, 'string').outputPdf('bloburi');
   // const pdfUrl = await html2pdf().set({
