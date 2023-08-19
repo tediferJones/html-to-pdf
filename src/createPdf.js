@@ -2,6 +2,18 @@ function getSelectOpts(elementId) {
   return Array.from(document.getElementById(elementId).children).map(item => item.value);
 }
 
+function addAttributes(elementId, attrs) {
+  const element = document.getElementById(elementId);
+  Object.keys(attrs).forEach(key => {
+    key === 'class' ?  element.classList.add(attrs[key]) : element[key] = attrs[key];
+    // if (key === 'class') {
+    //   element.classList.add(attrs[key]);
+    // } else {
+    //   element[key] = attrs[key];
+    // }
+  })
+}
+
 function generateInputs() {
   // Consider moving this obj to the root of this script, consider how to implement default state and update state
   const options = {
@@ -21,18 +33,82 @@ function generateInputs() {
         console.log(element)
         return `${elementId} must be between ${element.min} and ${element.max}`;
       },
+      createElement: (elementId) => {
+        const constraint = options.number.inputs[elementId];
+        const newInput = document.createElement('input');
+        newInput.classList.add('text-black')
+        newInput.type = 'number';
+        newInput.id = elementId;
+        newInput.min = constraint.min;
+        newInput.max = constraint.max;
+        newInput.step = constraint.step;
+        // newInput.textContent = elementId;
+        // <input class='text-black' id='margin' type='number' min='0' max='99' step='0.01' value='1'></input>
+        document.getElementById(`${elementId}Label`).textContent = elementId[0].toUpperCase() + elementId.slice(1) + ': ';
+        document.getElementById(`${elementId}Label`).appendChild(newInput);
+      }
     },
     string: {
       inputs: {
-        units: ['pt','mm','cm','in'],
-        format: ['letter', 'government', 'legal', 'junior', 'ledger', 'tabloid'],
-        orientation: ['portrait', 'landscape'],
+        units: [
+          // If we use textContent instead of name, just object.keys
+          { name: 'Point', value: 'pt' },
+          { name: 'Millimeter', value: 'mm' },
+          { name: 'Centimeter', value: 'cm' },
+          { name: 'Inch', value: 'in' },
+        ],
+        format: [
+          { name: 'Letter', value: 'letter' },
+          { name: 'Government', value: 'government' },
+          { name: 'Legal', value: 'legal' },
+          { name: 'Junior', value: 'junior' },
+          { name: 'Ledger', value: 'ledger' },
+          { name: 'Tabloid', value: 'tabloid' },
+        ],
+        orientation: [
+          { name: 'Portrait', value: 'portrait' },
+          { name: 'Landscape', value: 'landscape' },
+        ],
       },
-      test: (elementId) => getSelectOpts(elementId).includes(document.getElementById(elementId).value),
-      error: (elementId) => `${elementId} must be one of the following: ${getSelectOpts(elementId)}`,
+      validate: (elementId) => getSelectOpts(elementId).includes(document.getElementById(elementId).value),
+      errorMsg: (elementId) => `${elementId} must be one of the following: ${getSelectOpts(elementId)}`,
+      createElement: (elementId) => {
+        const newSelector = document.createElement('select');
+        newSelector.id = elementId;
+        newSelector.classList.add('text-black');
+        options.string.inputs[elementId].forEach(constraint => {
+          const newOption = document.createElement('option')
+          newOption.textContent = constraint.name;
+          newOption.value = constraint.value;
+          newSelector.appendChild(newOption);
+        })
+
+        document.getElementById(`${elementId}Label`).textContent = elementId[0].toUpperCase() + elementId.slice(1) + ': ';
+        document.getElementById(`${elementId}Label`).appendChild(newSelector);
+        // <select class='text-black' id='orientation'>
+        //   <option value='portrait'>Portrait</option>
+        //   <option value='landscape'>Landscape</option>
+        // </select>
+      }
     },
   }
   // use this object to generate the form inputs, leave only the label tags in the HTML
+  Object.keys(options).forEach(type => {
+    Object.keys(options[type].inputs).forEach(option => {
+      options[type].createElement(option);
+    })
+  })
+}
+generateInputs();
+
+function validateInputs() {
+  Object.keys(options).forEach(type => {
+    Object.keys(options[type]).forEach(option => {
+      if (!options[type].validate(option)) {
+        options[type].errorMsg(option);
+      };
+    })
+  })
 }
 
 function validateOpts() {
