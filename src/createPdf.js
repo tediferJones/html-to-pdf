@@ -2,96 +2,103 @@ function getSelectOpts(elementId) {
   return Array.from(document.getElementById(elementId).children).map(item => item.value);
 }
 
-function addAttributes(elementId, attrs) {
-  const element = document.getElementById(elementId);
+function addAttributes(element, attrs) {
   Object.keys(attrs).forEach(key => {
     key === 'class' ?  element.classList.add(attrs[key]) : element[key] = attrs[key];
-    // if (key === 'class') {
-    //   element.classList.add(attrs[key]);
-    // } else {
-    //   element[key] = attrs[key];
-    // }
   })
+}
+
+// How do we manage state between options changes?
+// On start, if there is no value in localStorage, we use defaultOptions
+// When the user changes the from the values are updated as the user changes them (obviously)
+// SO THE ONLY OTHER TIME THE INPUTS WILL CHANGE IS WHEN THE USER RESETS TO DEFAULT
+// SO EXPAND THE FUNCTION THAT RESETS TO DEFAULT WITH LOGIC THAT WILL UPDATE THE VALUES
+
+const defaultOptions = {
+  margin: 1,
+  image: { type: 'jpeg', quality: 1 },
+  html2canvas: { scale: 4 },
+  jsPDF: {
+    unit: 'in',
+    format: 'letter',
+    orientation: 'portrait',
+  },
+}
+// const userOptions = JSON.parse(localStorage.getItem('html2pdfOptions'));
+// console.log(userOptions);
+// console.log(localStorage.getItem('html2pdfOptions'))
+const realOptions = localStorage.getItem('html2pdfOptions') ? JSON.parse(localStorage.getItem('html2pdfOptions')) : defaultOptions;
+const options = {
+  number: {
+    inputs: {
+      margin: { min: 0, max: 99, step: 0.01, value: realOptions.margin },
+      quality: { min: 0, max: 1, step: 0.01, value: realOptions.image.quality },
+      scale: { min: 1, max: 16, step: 0.01, value: realOptions.html2canvas.scale },
+    },
+    validate: (elementId) => {
+      const element = document.getElementById(elementId);
+      return Number(element.value) >= Number(element.min) && Number(element.value) <= Number(element.max);
+    },
+    errorMsg: (elementId) => {
+      const element = document.getElementById(elementId);
+      console.log(element)
+      return `${elementId} must be between ${element.min} and ${element.max}`;
+    },
+    createElement: (elementId) => {
+      const constraint = options.number.inputs[elementId];
+      const newInput = document.createElement('input');
+      newInput.classList.add('text-black')
+      newInput.type = 'number';
+      newInput.id = elementId;
+      addAttributes(newInput, constraint);
+
+      document.getElementById(`${elementId}Label`).textContent = elementId[0].toUpperCase() + elementId.slice(1) + ': ';
+      document.getElementById(`${elementId}Label`).appendChild(newInput);
+    }
+  },
+  string: {
+    inputs: {
+      units: [
+        // How do we select the right default option?
+        { textContent: 'Point', value: 'pt' },
+        { textContent: 'Millimeter', value: 'mm' },
+        { textContent: 'Centimeter', value: 'cm' },
+        { textContent: 'Inch', value: 'in', selected: 'selected' },
+      ],
+      format: [
+        { textContent: 'Letter', value: 'letter', selected: 'selected' },
+        { textContent: 'Government', value: 'government' },
+        { textContent: 'Legal', value: 'legal' },
+        { textContent: 'Junior', value: 'junior' },
+        { textContent: 'Ledger', value: 'ledger' },
+        { textContent: 'Tabloid', value: 'tabloid' },
+      ],
+      orientation: [
+        { textContent: 'Portrait', value: 'portrait', selected: 'selected' },
+        { textContent: 'Landscape', value: 'landscape' },
+      ],
+    },
+    validate: (elementId) => getSelectOpts(elementId).includes(document.getElementById(elementId).value),
+    errorMsg: (elementId) => `${elementId} must be one of the following: ${getSelectOpts(elementId)}`,
+    createElement: (elementId) => {
+      const newSelector = document.createElement('select');
+      newSelector.id = elementId;
+      newSelector.classList.add('text-black');
+      options.string.inputs[elementId].forEach(constraint => {
+        const newOption = document.createElement('option')
+        addAttributes(newOption, constraint);
+        newSelector.appendChild(newOption);
+      });
+
+      document.getElementById(`${elementId}Label`).textContent = elementId[0].toUpperCase() + elementId.slice(1) + ': ';
+      document.getElementById(`${elementId}Label`).appendChild(newSelector);
+    }
+  },
 }
 
 function generateInputs() {
   // Consider moving this obj to the root of this script, consider how to implement default state and update state
-  const options = {
-    number: {
-      // elementIds: ['margin', 'quality', 'scale'],
-      inputs: {
-        margin: { min: 0, max: 99, step: 0.01, },
-        quality: { min: 0, max: 1, step: 0.01, },
-        scale: { min: 1, max: 16, step: 0.01, },
-      },
-      validate: (elementId) => {
-        const element = document.getElementById(elementId);
-        return Number(element.value) >= Number(element.min) && Number(element.value) <= Number(element.max);
-      },
-      errorMsg: (elementId) => {
-        const element = document.getElementById(elementId);
-        console.log(element)
-        return `${elementId} must be between ${element.min} and ${element.max}`;
-      },
-      createElement: (elementId) => {
-        const constraint = options.number.inputs[elementId];
-        const newInput = document.createElement('input');
-        newInput.classList.add('text-black')
-        newInput.type = 'number';
-        newInput.id = elementId;
-        newInput.min = constraint.min;
-        newInput.max = constraint.max;
-        newInput.step = constraint.step;
-        // newInput.textContent = elementId;
-        // <input class='text-black' id='margin' type='number' min='0' max='99' step='0.01' value='1'></input>
-        document.getElementById(`${elementId}Label`).textContent = elementId[0].toUpperCase() + elementId.slice(1) + ': ';
-        document.getElementById(`${elementId}Label`).appendChild(newInput);
-      }
-    },
-    string: {
-      inputs: {
-        units: [
-          // If we use textContent instead of name, just object.keys
-          { name: 'Point', value: 'pt' },
-          { name: 'Millimeter', value: 'mm' },
-          { name: 'Centimeter', value: 'cm' },
-          { name: 'Inch', value: 'in' },
-        ],
-        format: [
-          { name: 'Letter', value: 'letter' },
-          { name: 'Government', value: 'government' },
-          { name: 'Legal', value: 'legal' },
-          { name: 'Junior', value: 'junior' },
-          { name: 'Ledger', value: 'ledger' },
-          { name: 'Tabloid', value: 'tabloid' },
-        ],
-        orientation: [
-          { name: 'Portrait', value: 'portrait' },
-          { name: 'Landscape', value: 'landscape' },
-        ],
-      },
-      validate: (elementId) => getSelectOpts(elementId).includes(document.getElementById(elementId).value),
-      errorMsg: (elementId) => `${elementId} must be one of the following: ${getSelectOpts(elementId)}`,
-      createElement: (elementId) => {
-        const newSelector = document.createElement('select');
-        newSelector.id = elementId;
-        newSelector.classList.add('text-black');
-        options.string.inputs[elementId].forEach(constraint => {
-          const newOption = document.createElement('option')
-          newOption.textContent = constraint.name;
-          newOption.value = constraint.value;
-          newSelector.appendChild(newOption);
-        })
 
-        document.getElementById(`${elementId}Label`).textContent = elementId[0].toUpperCase() + elementId.slice(1) + ': ';
-        document.getElementById(`${elementId}Label`).appendChild(newSelector);
-        // <select class='text-black' id='orientation'>
-        //   <option value='portrait'>Portrait</option>
-        //   <option value='landscape'>Landscape</option>
-        // </select>
-      }
-    },
-  }
   // use this object to generate the form inputs, leave only the label tags in the HTML
   Object.keys(options).forEach(type => {
     Object.keys(options[type].inputs).forEach(option => {
@@ -102,63 +109,86 @@ function generateInputs() {
 generateInputs();
 
 function validateInputs() {
+  const errors = [];
   Object.keys(options).forEach(type => {
-    Object.keys(options[type]).forEach(option => {
+    Object.keys(options[type].inputs).forEach(option => {
+      console.log(type, option)
       if (!options[type].validate(option)) {
-        options[type].errorMsg(option);
+        // options[type].errorMsg(option);
+        errors.push(options[type].errorMsg(option));
       };
     })
   })
+  return errors;
 }
 
-function validateOpts() {
-  // on change validate inputs, and assign result to localStorage
-  // REMOVE HTML VALIDATORS IF WE GET THIS WORKING,
-  // html validators only run on submit, these will run on every change
-  const idkOpts = {
-    number: {
-      elementIds: ['margin', 'quality', 'scale'],
-      test: (elementId) => {
-        const element = document.getElementById(elementId);
-        return Number(element.value) >= Number(element.min) && Number(element.value) <= Number(element.max);
-      },
-      error: (elementId) => {
-        const element = document.getElementById(elementId);
-        console.log(element)
-        return `${elementId} must be between ${element.min} and ${element.max}`;
-      },
-    },
-    string: {
-      elementIds: ['units', 'format', 'orientation'],
-      test: (elementId) => getSelectOpts(elementId).includes(document.getElementById(elementId).value),
-      error: (elementId) => `${elementId} must be one of the following: ${getSelectOpts(elementId)}`,
-    },
-  };
-  const errors = [];
-  Object.keys(idkOpts).forEach(type => {
-    idkOpts[type].elementIds.forEach(elementId => {
-      if (!idkOpts[type].test(elementId)) {
-        const newError = document.createElement('div');
-        newError.textContent = idkOpts[type].error(elementId);
-        errors.push(newError);
-      }
-    })
-  })
-  return errors;
-};
+// function validateOpts() {
+//   // on change validate inputs, and assign result to localStorage
+//   // REMOVE HTML VALIDATORS IF WE GET THIS WORKING,
+//   // html validators only run on submit, these will run on every change
+//   const idkOpts = {
+//     number: {
+//       elementIds: ['margin', 'quality', 'scale'],
+//       test: (elementId) => {
+//         const element = document.getElementById(elementId);
+//         return Number(element.value) >= Number(element.min) && Number(element.value) <= Number(element.max);
+//       },
+//       error: (elementId) => {
+//         const element = document.getElementById(elementId);
+//         console.log(element)
+//         return `${elementId} must be between ${element.min} and ${element.max}`;
+//       },
+//     },
+//     string: {
+//       elementIds: ['units', 'format', 'orientation'],
+//       test: (elementId) => getSelectOpts(elementId).includes(document.getElementById(elementId).value),
+//       error: (elementId) => `${elementId} must be one of the following: ${getSelectOpts(elementId)}`,
+//     },
+//   };
+//   const errors = [];
+//   Object.keys(idkOpts).forEach(type => {
+//     idkOpts[type].elementIds.forEach(elementId => {
+//       if (!idkOpts[type].test(elementId)) {
+//         const newError = document.createElement('div');
+//         newError.textContent = idkOpts[type].error(elementId);
+//         errors.push(newError);
+//       }
+//     })
+//   })
+//   return errors;
+// };
+
+document.getElementById('html2pdfSettings').addEventListener('click', () => {
+  localStorage.removeItem('html2pdfOptions');
+  // Object.keys(options).forEach(type => {
+  //   Object.keys(options[type].inputs).forEach(option => {
+  //     // const specialCase = {
+  //     //   margin: ()
+  //     // }[option];
+  //     // document.getElementById(option).value = defaultOptions.option.value
+  //   })
+  // })
+})
 
 document.getElementById('html2pdfOptions').addEventListener('change', () => {
   console.log('FORM HAS CHANGED')
   
-  const errors = validateOpts();
+  // const errors = validateOpts();
+  const errors = validateInputs();
   console.log(errors);
+  document.getElementById('validationErrors').innerHTML = '';
   if (errors.length) {
     // clear old error messages if they exist
-    document.getElementById('validationErrors').innerHTML = '';
-    errors.forEach(error => document.getElementById('validationErrors').appendChild(error));
+    // document.getElementById('validationErrors').innerHTML = '';
+    // errors.forEach(error => document.getElementById('validationErrors').appendChild(error));
+    errors.forEach(error => {
+      const newError = document.createElement('div');
+      newError.textContent = error;
+      document.getElementById('validationErrors').appendChild(newError)
+    });
   } else {
     // clear old error messages if they exist
-    document.getElementById('validationErrors').innerHTML = '';
+    // document.getElementById('validationErrors').innerHTML = '';
     // set opts to localStorage, and edit updatePdf() function use localStorage options OR the default set
     const test = document.getElementById('html2pdfOptions');
     localStorage.setItem('html2pdfOptions', JSON.stringify({
