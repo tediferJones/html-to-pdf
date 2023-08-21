@@ -73,45 +73,45 @@
 
               <form class='flex flex-col' id='html2pdfOptions'>
                 <h3>General</h3>
-                <!-- <label for='margin'>
+                <label for='margin'>
                   Margin:
                   <input class='text-black' id='margin' type='number' min='0' max='99' step='0.01' value='1'></input>
-                </label> -->
-                <label id='marginLabel'></label>
-                
+                </label>
+                <!-- <label id='marginLabel'></label> -->
+                 
                 <h3>Image</h3>
-                <!-- <label for='quality'>
+                <label for='quality'>
                   Quality:
                   <input class='text-black' id='quality' type='number' min='0' max='1' step='0.01' value='1'></input>
-                </label> -->
-                <label id='qualityLabel'></label>
-
+                </label>
+                <!-- <label id='qualityLabel'></label> -->
+ 
                 <h3>Canvas</h3>
-                <!-- <label for='scale'>
+                <label for='scale'>
                   Scale:
                   <input class='text-black' id='scale' type='number' min='1' max='16' value='4'></input>
-                </label> -->
-                <label id='scaleLabel'></label>
-                <h3>PDF</h3>
-                <!-- <label for='orientation'>Orientation
+                </label>
+                <!-- <label id='scaleLabel'></label> -->
+                 <h3>PDF</h3>
+                <label for='orientation'>Orientation
                   <select class='text-black' id='orientation'>
                     <option value='portrait'>Portrait</option>
                     <option value='landscape'>Landscape</option>
                   </select>
-                </label> -->
-                <label id='orientationLabel'></label>
-
-                <!-- <label for='units'>Units
+                </label>
+                <!-- <label id='orientationLabel'></label> -->
+ 
+                <label for='units'>Units
                   <select class='text-black' id='units'>
                     <option value='pt'>Points</option>
                     <option value='mm'>Millimeters</option>
                     <option value='cm'>Centimeters</option>
                     <option value='in'>Inches</option>
                   </select>
-                </label> -->
-                <label id='unitsLabel'></label>
-
-                <!-- <label for='format'>Format
+                </label>
+                <!-- <label id='unitsLabel'></label> -->
+ 
+                <label for='format'>Format
                   <select class='text-black' id='format'>
                     <option value='letter'>Letter</option>
                     <option value='government-letter'>Government-letter</option>
@@ -121,15 +121,16 @@
                     <option value='tabloid'>Tabloid</option>
                     <option value='credit-card'>Credit-Card</option>
                   </select>
-                </label> -->
-                <label id='formatLabel'></label>
-                <h3>Selectors go here, check
+                </label>
+                <!-- <label id='formatLabel'></label> -->
+                 <h3>Selectors go here, check
                   <a href='https://rawgit.com/MrRio/jsPDF/master/docs/jsPDF.html'>HERE</a>
                 </h3>
 
                 <div class='text-red-500' id='validationErrors'></div>
 
-                <button class='p-2 mt-2 bg-gray-700' id='html2pdfSettings'>Reset to Default</button>
+                <!-- <button class='p-2 mt-2 bg-gray-700' id='html2pdfSettings'>Reset to Default</button> -->
+                <button id='submitHtml2pdfOptions'>Delete Saved Options</button>
               </form>
             </div>
           </div>

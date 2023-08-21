@@ -54,10 +54,10 @@ document.getElementById('htmlUpload').addEventListener('change', async () => {
 updatePdf();
 // document.getElementById('settingsToggle').click();
 
-document.getElementById('html2pdfSettings').addEventListener('click', (e) => {
-  e.preventDefault();
-  console.log('settings submit handler')
-})
+// document.getElementById('html2pdfSettings').addEventListener('click', (e) => {
+//   e.preventDefault();
+//   console.log('settings submit handler')
+// })
 
 // function addTagToHead(tagType, attributes) {
 //   // let newScript = document.createElement('script')
