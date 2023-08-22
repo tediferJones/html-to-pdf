@@ -73,27 +73,27 @@
 
               <form class='flex flex-col' id='html2pdfOptions'>
                 <h3>General</h3>
-                <label for='margin'>
-                  Margin:
-                  <input class='text-black' id='margin' type='number' min='0' max='99' step='0.01' value='1'></input>
+                <label class='flex justify-between my-2' for='margin'>
+                  <div class='my-auto'>Margin:</div>
+                  <input class='text-black p-0.5 text-center' id='margin' type='number' min='0' max='99' step='0.01' value='1'></input>
                 </label>
                 <!-- <label id='marginLabel'></label> -->
                  
-                <h3>Image</h3>
-                <label for='quality'>
-                  Quality:
-                  <input class='text-black' id='quality' type='number' min='0' max='1' step='0.01' value='1'></input>
+                <!-- <h3>Image</h3> -->
+                <label class='flex justify-between my-2' for='quality'>
+                  <div class='my-auto'>Quality:</div>
+                  <input class='text-black p-0.5 text-center' id='quality' type='number' min='0' max='1' step='0.01' value='1'></input>
                 </label>
                 <!-- <label id='qualityLabel'></label> -->
  
-                <h3>Canvas</h3>
-                <label for='scale'>
-                  Scale:
-                  <input class='text-black' id='scale' type='number' min='1' max='16' value='4'></input>
+                <!-- <h3>Canvas</h3> -->
+                <label class='flex justify-between my-2' for='scale'>
+                  <div class='my-auto'>Scale:</div>
+                  <input class='text-black p-0.5 text-center'  class='flex justify-between my-2'id='scale' type='number' min='1' max='16' value='4'></input>
                 </label>
                 <!-- <label id='scaleLabel'></label> -->
                  <h3>PDF</h3>
-                <label for='orientation'>Orientation
+                <label class='flex justify-between my-2' for='orientation'>Orientation:
                   <select class='text-black' id='orientation'>
                     <option value='portrait'>Portrait</option>
                     <option value='landscape'>Landscape</option>
@@ -101,7 +101,7 @@
                 </label>
                 <!-- <label id='orientationLabel'></label> -->
  
-                <label for='units'>Units
+                <label class='flex justify-between my-2' for='units'>Units:
                   <select class='text-black' id='units'>
                     <option value='pt'>Points</option>
                     <option value='mm'>Millimeters</option>
@@ -111,7 +111,7 @@
                 </label>
                 <!-- <label id='unitsLabel'></label> -->
  
-                <label for='format'>Format
+                <label class='flex justify-between my-2' for='format'>Format:
                   <select class='text-black' id='format'>
                     <option value='letter'>Letter</option>
                     <option value='government-letter'>Government-letter</option>
@@ -130,7 +130,7 @@
                 <div class='text-red-500' id='validationErrors'></div>
 
                 <!-- <button class='p-2 mt-2 bg-gray-700' id='html2pdfSettings'>Reset to Default</button> -->
-                <button id='submitHtml2pdfOptions'>Delete Saved Options</button>
+                <button class='p-2 mt-2 bg-gray-700' id='resetHtml2pdfOptions'>Reset Options</button>
               </form>
             </div>
           </div>
