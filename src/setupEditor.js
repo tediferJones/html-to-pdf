@@ -44,13 +44,13 @@ document.getElementById('newEditor').children[0].style.height = '100%';
 // document.getElementById('newEditor').children[0].style.zIndex = 'auto';
 
 // Delay updatePdf() until user stops typing
-let delay;
-editor.on('change', () => {
-  if (delay) clearTimeout(delay);
-  delay = setTimeout(() => {
-    updatePdf();
-  }, 2000);
-});
+// let delay;
+// editor.on('change', () => {
+//   if (delay) clearTimeout(delay);
+//   delay = setTimeout(() => {
+//     updatePdf();
+//   }, 1000);
+// });
 
 // let delay2;
 // editor.on('change', (cm) => {

@@ -71,38 +71,55 @@
                 <label for='vimMode'>Enable Vim Mode</label>
               </div>
 
+              <!--
+              <div>
+              <div class='w-full text-center py-2'>
+              <input class='accent-gray-700' id='autoRefresh' type='checkbox'></input>
+              <label for='autoRefresh'>Enable Auto-Refresh</label>
+              </div>
+
+              <label class='flex justify-between my-2' for='refreshDelay'>
+              <div class='my-auto flex-1'>Refresh Delay</div>
+              <input class='text-black p-0.5 text-center w-1/2' type='number' step='0.001' value='1'></input>
+              </label>
+              </div>
+              <div>To disable auto-refresh, input a negative number, or use a checkbox, if checked, use input number as delay, if unchecked, disable auto-refresh</div>
+              -->
+
               <form class='flex flex-col' id='html2pdfOptions'>
                 <h3>General</h3>
                 <label class='flex justify-between my-2' for='margin'>
-                  <div class='my-auto'>Margin:</div>
-                  <input class='text-black p-0.5 text-center' id='margin' type='number' min='0' max='99' step='0.01' value='1'></input>
+                  <div class='my-auto flex-1'>Margin:</div>
+                  <input class='text-black p-0.5 text-center flex-1' id='margin' type='number' min='0' max='99' step='0.01' value='1'></input>
                 </label>
                 <!-- <label id='marginLabel'></label> -->
                  
                 <!-- <h3>Image</h3> -->
                 <label class='flex justify-between my-2' for='quality'>
-                  <div class='my-auto'>Quality:</div>
-                  <input class='text-black p-0.5 text-center' id='quality' type='number' min='0' max='1' step='0.01' value='1'></input>
+                  <div class='my-auto flex-1'>Quality:</div>
+                  <input class='text-black p-0.5 text-center flex-1' id='quality' type='number' min='0' max='1' step='0.01' value='1'></input>
                 </label>
                 <!-- <label id='qualityLabel'></label> -->
  
                 <!-- <h3>Canvas</h3> -->
                 <label class='flex justify-between my-2' for='scale'>
-                  <div class='my-auto'>Scale:</div>
-                  <input class='text-black p-0.5 text-center'  class='flex justify-between my-2'id='scale' type='number' min='1' max='16' value='4'></input>
+                  <div class='my-auto flex-1'>Scale:</div>
+                  <input class='text-black p-0.5 text-center flex-1'  class='flex justify-between my-2'id='scale' type='number' min='1' max='16' value='4'></input>
                 </label>
                 <!-- <label id='scaleLabel'></label> -->
                  <h3>PDF</h3>
-                <label class='flex justify-between my-2' for='orientation'>Orientation:
-                  <select class='text-black' id='orientation'>
+                <label class='flex justify-between my-2' for='orientation'>
+                  <div class='flex-1'>Orientation:</div>
+                  <select class='text-black flex-1 p-0.5' id='orientation'>
                     <option value='portrait'>Portrait</option>
                     <option value='landscape'>Landscape</option>
                   </select>
                 </label>
                 <!-- <label id='orientationLabel'></label> -->
  
-                <label class='flex justify-between my-2' for='units'>Units:
-                  <select class='text-black' id='units'>
+                <label class='flex justify-between my-2' for='units'>
+                  <div class='flex-1'>Units:</div>
+                  <select class='text-black flex-1 p-0.5' id='units'>
                     <option value='pt'>Points</option>
                     <option value='mm'>Millimeters</option>
                     <option value='cm'>Centimeters</option>
@@ -111,8 +128,9 @@
                 </label>
                 <!-- <label id='unitsLabel'></label> -->
  
-                <label class='flex justify-between my-2' for='format'>Format:
-                  <select class='text-black' id='format'>
+                <label class='flex justify-between my-2' for='format'>
+                  <div class='flex-1'>Format:</div>
+                  <select class='text-black flex-1 p-0.5' id='format'>
                     <option value='letter'>Letter</option>
                     <option value='government-letter'>Government-letter</option>
                     <option value='legal'>Legal</option>

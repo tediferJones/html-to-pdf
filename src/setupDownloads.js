@@ -15,25 +15,3 @@ new Map(Object.entries({
       triggerDownload.click();
     })
   });
-
-// new Map([
-//   ['html', () => URL.createObjectURL(
-//     new File(['<script src="https://cdn.tailwindcss.com"></script>' + editor.getValue()], 'temp', { type: 'text/html' })
-//   )],
-//   ['pdf', () => document.getElementById('pdfContainer').data],
-// ])
-
-// const fileUrl = {
-//   html: () => URL.createObjectURL(new File([
-//     '<script src="https://cdn.tailwindcss.com"></script>' + editor.getValue()
-//   ], 'temp', { type: 'text/html' })),
-//   pdf: () => document.getElementById('pdfContainer').data,
-// };
-// Object.keys(fileUrl).forEach(fileType => {
-//   document.getElementById(`${fileType}Download`).addEventListener('click', () => {
-//     const triggerDownload = document.createElement('a');
-//     triggerDownload.href = fileUrl[fileType]();
-//     triggerDownload.download = `${document.getElementById('filename').value}.${fileType}`;
-//     triggerDownload.click();
-//   });
-// });
