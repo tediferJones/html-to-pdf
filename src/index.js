@@ -84,13 +84,6 @@ async function updatePdf(renderOnce) {
 
   const options = JSON.parse(localStorage.getItem('html2pdfOptions'))
   const pdfUrl = await html2pdf().set(options).from(content, 'string').outputPdf('bloburi');
-  // const pdfUrl = await html2pdf().set({
-  //   margin:       0.5,
-  //   image:        { type: 'jpeg', quality: 1 },
-  //   // Higher scale = higher quality
-  //   html2canvas:  { scale: 4 },
-  //   jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  // }).from(content, 'string').outputPdf('bloburi');
   document.getElementById('pdfContainer').data = pdfUrl;
   document.getElementById('pdfDisplayError').href = pdfUrl; 
 };
@@ -249,7 +242,7 @@ new Map(Object.entries({
 //
 //
 //  - Renaming: 
-//    Replace all "" in the HTML file to ''
+//    [ DONE ] Replace all "" in the HTML file to ''
 //
 // Do we want to use NPM?
 //    If we go pureJS: scripts are fetch via CDN, if you dont have internet you cant access the CDN
