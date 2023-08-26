@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang='en' class='h-full w-full'>
+	<head>
+		<meta charset='utf-8' />
+		<meta name='viewport' content='width=device-width' />
+		<meta name='generator' content={Astro.generator} />
+		<title>Live HTML to PDF</title>
+    <link rel='icon' type='image/x-icon' href='favicon.ico' />
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js' integrity='sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css' integrity='sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==' crossorigin='anonymous' referrerpolicy='no-referrer' />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/xml/xml.min.js' integrity='sha512-LarNmzVokUmcA7aUDtqZ6oTS+YXmUKzpGdm8DxC46A6AHu+PQiYCUlwEGWidjVYMo/QXZMFMIadZtrkfApYp/g==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/xml-hint.min.js' integrity='sha512-+ysdToUF7KWua+mgbRPZ5hw0goAzopoVILQ4tejOckvVZV7/7a+Coqo2cTAXAaqkOemp+gz3P6hIzO5Jtys/Jg==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.js' integrity='sha512-yhmeAerubMLaGAsyS7sE8Oqub6GeTkBDQpkXo2JKHgg7JOCudQvcbDQc5rPxdl7MqcDusTJzSy+ODlyzAwETfQ==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/show-hint.min.css' integrity='sha512-OmcLQEy8iGiD7PSm85s06dnR7G7C9C0VqahIPAj/KHk5RpOCmnC6R2ob1oK4/uwYhWa9BF1GC6tzxsC8TIx7Jg==' crossorigin='anonymous' referrerpolicy='no-referrer' />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/addon/hint/html-hint.min.js' integrity='sha512-oxBKDzXElkyh3mQC/bKA/se1Stg1Q6fm7jz7PPY2kL01jRHQ64IwjpZVsuZojcaj5g8eKSMY9UJamtB1QR7Dmw==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/keymap/vim.min.js' integrity='sha512-CRScbOTlIJVds3U03uRuDwsYvvq3qFtW5rR7bdlWMzyaKASpibWkS4qhUwE0mfNIpwRurtR3V7bKMLPTtjXusw==' crossorigin='anonymous' referrerpolicy='no-referrer'></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/ayu-dark.min.css' integrity='sha512-mV3RUXi1gt22jDb4UyRBFhZVFgAIiOfRE6ul+2l1Hcj6glyg6x4xlnjPH+neGm/t6XrFmsMRu4++McQu0asjqg==' crossorigin='anonymous' referrerpolicy='no-referrer' />
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.js'></script>
+
+    <script src='https://cdn.tailwindcss.com'></script>
+    <script src='https://kit.fontawesome.com/0db2e99dd7.js' crossorigin='anonymous'></script>
+
+    <script src='./index.js' defer></script>
+	</head>
+  <body class='h-full w-full flex flex-col lg:flex-row'>
+    <div class='flex h-full w-full lg:w-1/2 flex-col'>
+      <span class='flex justify-between bg-gray-700 relative text-white'>
+        <h1 class='my-auto mx-4'>HTML to PDF</h1>
+        <div class='flex'>
+          <div id='infoContainer'>
+            <button class='py-2 px-4 h-full fa-solid fa-circle-info' id='infoToggle'></button>
+            <div class='hidden absolute right-0 bg-blue-600 w-1/2 p-4' id='infoDropDown'>
+              <h1>This website allows you to use HTML to create and style a PDF document</h1>
+              <ul class='list-disc py-2 px-4'>
+                <li>Styling can be done via tailwind classes, or inline styles</li>
+                <li>PDF output supports links</li>
+                <li>Existing HTML files can be uploaded, edited, and converted</li>
+                <li>You can download the current HTML or PDF file using the download dropdown</li>
+              </ul>
+              <p class='text-center'>Want to see the code?</p>
+              <a class='bg-gray-700 p-2 text-center block cursor-pointer' href='https://github.com/tediferJones/html-to-pdf'>
+                <i class='fa-brands fa-github fa-xl'></i>
+                <span>GitHub</span>
+              </a>
+            </div>
+          </div>
+
+          <div id='settingsContainer'>
+            <button class='py-2 px-4 fa-solid fa-gear' id='settingsToggle'></button>
+            <div class='hidden absolute right-0 bg-blue-600 p-4' id='settingsDropDown'>
+              <div class='w-full text-center py-2'>
+                <input class='accent-gray-700' id='vimMode' type='checkbox'></input>
+                <label for='vimMode'>Enable Vim Mode</label>
+              </div>
+
+              <form class='flex flex-col' id='html2pdfOptions'>
+                <h3>General</h3>
+                <label class='flex justify-between my-2' for='margin'>
+                  <div class='my-auto flex-1'>Margin:</div>
+                  <input class='text-black p-0.5 text-center flex-1' id='margin' type='number' min='0' max='99' step='0.01' value='1'></input>
+                </label>
+                 
+                <label class='flex justify-between my-2' for='quality'>
+                  <div class='my-auto flex-1'>Quality:</div>
+                  <input class='text-black p-0.5 text-center flex-1' id='quality' type='number' min='0' max='1' step='0.01' value='1'></input>
+                </label>
+ 
+                <label class='flex justify-between my-2' for='scale'>
+                  <div class='my-auto flex-1'>Scale:</div>
+                  <input class='text-black p-0.5 text-center flex-1'  class='flex justify-between my-2'id='scale' type='number' min='1' max='16' value='4'></input>
+                </label>
+                 <h3>PDF</h3>
+                <label class='flex justify-between my-2' for='orientation'>
+                  <div class='flex-1'>Orientation:</div>
+                  <select class='text-black flex-1 p-0.5' id='orientation'>
+                    <option value='portrait'>Portrait</option>
+                    <option value='landscape'>Landscape</option>
+                  </select>
+                </label>
+ 
+                <label class='flex justify-between my-2' for='units'>
+                  <div class='flex-1'>Units:</div>
+                  <select class='text-black flex-1 p-0.5' id='units'>
+                    <option value='pt'>Points</option>
+                    <option value='mm'>Millimeters</option>
+                    <option value='cm'>Centimeters</option>
+                    <option value='in'>Inches</option>
+                  </select>
+                </label>
+ 
+                <label class='flex justify-between my-2' for='format'>
+                  <div class='flex-1'>Format:</div>
+                  <select class='text-black flex-1 p-0.5' id='format'>
+                    <option value='letter'>Letter</option>
+                    <option value='government-letter'>Government-letter</option>
+                    <option value='legal'>Legal</option>
+                    <option value='junior-legal'>Junior-legal</option>
+                    <option value='ledger'>Ledger</option>
+                    <option value='tabloid'>Tabloid</option>
+                    <option value='credit-card'>Credit-Card</option>
+                  </select>
+                </label>
+
+                <button class='p-2 mt-2 bg-gray-700' id='resetHtml2pdfOptions'>Reset Options</button>
+              </form>
+            </div>
+          </div>
+
+          <div id='uploadContainer'>
+            <button class='py-2 px-4 h-full fas fa-cloud-upload-alt' id='uploadToggle'></button>
+            <div class='hidden absolute right-0 bg-blue-600 p-4' id='uploadDropDown'>
+              <label class='m-auto' for='htmlUpload'>HTML:</label>
+              <input class='m-auto flex-[2]' id='htmlUpload' type='file' accept='.html'/>
+            </div>
+          </div>
+
+          <div id='downloadContainer'>
+            <button class='py-2 px-4 h-full fas fa-cloud-download-alt' id='downloadToggle'></button>
+            <div class='hidden absolute right-0 bg-blue-600 p-4' id='downloadDropDown'>
+              <div class='flex flex-col'>
+                <label class='' for='filename'>Filename:</label>
+                <input class='text-black my-2 p-1' id='filename' type='text' value='html-to-pdf'/>
+              </div>
+              <div class='flex justify-evenly'>
+                <button class='py-4 px-6 flex' id='htmlDownload'>
+                  <i class='fa-solid fa-file-code fa-2xl cursor-pointer self-center pr-4'></i>
+                  <span class='w-full'>HTML</span>
+                </button>
+                <button class='py-4 px-6 flex' id='pdfDownload'>
+                  <i class='fa-solid fa-file-pdf fa-2xl cursor-pointer self-center pr-2'></i>
+                  <span class='w-full'>PDF</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </span>
+
+      <div id='newEditor' class='h-full'></div>
+    </div>
+    <object id='pdfContainer' class='w-full lg:w-1/2 h-full' type='application/pdf'>
+      <p>Unable to display PDF file. <a id='pdfDisplayError'>Download</a> instead.</p>
+    </object>
+  </body>
+</html>
