@@ -1,18 +1,33 @@
-// SETUP EDITOR
+// TO DO:
+//  - Figure out how to simplify the quick fix for html2pdf()
+//    - Doesnt have to convert from string -> pdf, maybe just toContainer or toCanvas
+//    - All Options: https://github.com/eKoopmans/html2pdf.js#worker-api
+//  - [ NAH ] Consider adding a customizable css file that gets bundled into our html, add a tab to toolbar to edit this file
+//  - [ DONE ] Try to get a bundled version of this website working
+//    - [ DONE ] If we cant get a bundled version working then revert to pureJS
+//      - [ DONE ] Delete esBuild and html2pdf packages, and delete build scripts from package.json
+//      - [ DONE ] Delete dist folder, src is the dist folder if we dont use a bundler
+//  - [ NAH ] Try to setup files so that files import their related script tag 
+//    - [ NAH ] createPdf should append the script tags needed for that file to run/work, i.e. html2pdf
+//  - [ NAH ] Do we want user to be able to change the interval for auto-refresh?
+//    - [ NAH ] If we allow user to change it, we should also allow user to disable it, 
+//      which means we need to conditionally render a button to manually update
+//      - [ NAH ] Thats kind of a lot of work for a feature no one is going to use
 
-// Set default state for htmlEditor and pdfContainer
+// THIS IS JUST AWESOME: http://appsweets.net/wasavi/
+// Setup Text Editor
 const editor = CodeMirror(document.getElementById('newEditor'), {
   lineNumbers: true,
   tabSize: 2,
   mode: 'text/html',
   extraKeys: {
-    "Tab": "autocomplete"  // Enable autocomplete with Ctrl+Space
+    "Tab": "autocomplete"  // Enable autocomplete with Tab
   },
   hintOptions: {
     hint: CodeMirror.hint.html,  // Use HTML-specific autocompletion
     completeSingle: true
   },
-  keyMap: (document.getElementById('vimMode').checked ? 'vim' : 'default'),
+  keyMap: (localStorage.getItem('vimMode') ? 'vim' : 'default'), // Set vim mode based on localStorage value
   theme: 'ayu-dark',
   autoCloseTags: true,
   matchTags: {bothTags: true},
@@ -29,9 +44,7 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
 </div>
 <!-- Press Tab for autocomplete -->`
 });
-// document.getElementById('newEditor').children[0].style.height = '100%';
 
-// document.getElementById('vimMode').checked = localStorage.getItem('vimMode');
 // Toggle vim mode for editor
 document.getElementById('vimMode').addEventListener('change', () => {
   if (localStorage.getItem('vimMode')) {
@@ -63,13 +76,8 @@ const defaultOptions = {
   },
 }
 
-// // If this is user's first visit, set default options to localstorage
-// if (!localStorage.getItem('html2pdfOptions')) {
-//   localStorage.setItem('html2pdfOptions', JSON.stringify(defaultOptions));
-// };
-
 async function updatePdf(renderOnce) {
-  const content = editor.getValue()
+  const content = editor.getValue();
 
   // Why does this work? No body knows
   // Theory: The new tailwind classes dont get imported in time, but if you just run it again they will already been imported from the last run
@@ -77,11 +85,8 @@ async function updatePdf(renderOnce) {
   if (!renderOnce) {
     await html2pdf().from(content, 'string').outputPdf('bloburi');
   }
-  // Update the pdf object container
-  // const pdfUrl = await html2pdf().from(content, 'string').outputPdf('bloburi');
-  // Default options can be found here: 
-  // https://github.com/eKoopmans/html2pdf.js#options
 
+  // Update the pdf object container
   const options = JSON.parse(localStorage.getItem('html2pdfOptions'))
   const pdfUrl = await html2pdf().set(options).from(content, 'string').outputPdf('bloburi');
   document.getElementById('pdfContainer').data = pdfUrl;
@@ -95,14 +100,13 @@ function setInputValues() {
     select: (option) => {
       Array.from(document.getElementById(option.id).children).forEach(selector => {
         if (option.value === selector.value) {
-          selector.selected = 'selected'
+          selector.selected = 'selected';
         };
       });
     },
   };
 
   const currentOptions = JSON.parse(localStorage.getItem('html2pdfOptions'));
-  // elements
   [ { id: 'margin', type: 'number', value: currentOptions.margin },
     { id: 'quality', type: 'number', value: currentOptions.image.quality },
     { id: 'scale', type: 'number', value: currentOptions.html2canvas.scale },
@@ -127,11 +131,9 @@ function init() {
   updatePdf();
 }
 init();
-// setInputValues();
-// updatePdf();
 
+// When options change, update PDF to use the current options (if the options are valid)
 document.getElementById('html2pdfOptions').addEventListener('change', () => {
-  // On change, the drop down disappears, we want it to refresh and still show the dropDown
   if (document.getElementById('html2pdfOptions').reportValidity()) {
     const form = document.getElementById('html2pdfOptions');
     localStorage.setItem('html2pdfOptions', JSON.stringify({
@@ -145,7 +147,7 @@ document.getElementById('html2pdfOptions').addEventListener('change', () => {
       },
     }));
 
-    // Running html2pdf() causes the menu to disappear
+    // Running html2pdf() causes the menu to disappear, this will bring it back, although it is pretty janky
     updatePdf().then(() => {
       document.getElementById('settingsToggle').click();
     });
@@ -156,21 +158,20 @@ document.getElementById('html2pdfOptions').addEventListener('change', () => {
 document.getElementById('resetHtml2pdfOptions').addEventListener('click', (e) => {
   e.preventDefault();
   localStorage.setItem('html2pdfOptions', JSON.stringify(defaultOptions));
-  // Update inputs with default values
+
   setInputValues();
   updatePdf();
 });
 
 // When html file gets uploaded, set htmlEditor to its text content, and generate a pdf
 document.getElementById('htmlUpload').addEventListener('change', async () => {
-  // Extract text content from file and assing to htmlEditor input
   editor.setValue(await document.getElementById('htmlUpload').files[0].text());
   // remove '.html' and assign to filename input
   document.getElementById('filename').value = document.getElementById('htmlUpload').files[0].name.slice(0, -5);
   updatePdf();
 });
 
-// SETUP DROPDOWNS
+// Setup eventListeners for Drop Downs
 const highestZIndex = Number(window.getComputedStyle(document.getElementsByClassName('CodeMirror-vscrollbar')[0]).zIndex);
 
 ['upload', 'download', 'info', 'settings'].forEach((baseString, index, baseStringArr) => {
@@ -201,7 +202,7 @@ const highestZIndex = Number(window.getComputedStyle(document.getElementsByClass
   });
 });
 
-// SETUP DOWNLOADS
+// Setup download links
 new Map(Object.entries({
   html: () => URL.createObjectURL(
     new File(
@@ -219,48 +220,3 @@ new Map(Object.entries({
       triggerDownload.click();
     })
   });
-
-// TO DO:
-//  - Consider adding a customizable css file that gets bundled into our html, add a tab to toolbar to edit this file
-//  - Allow user to manually set the delay for updatePdf when user stops typing, 
-//    - Also give user option to disable it entirely and allow them to click a button to update the pdf
-//    - Or just have use DOM calls to lookup current values of the form
-//    - USE LOCAL STORAGE TO SAVE OPTIONS, that way users dont have to reset them everytime they visit
-//  - Figure out how to simplify the quick fix for html2pdf()
-//    - Doesnt have to convert from string -> pdf, maybe just toContainer or toCanvas
-//    - All Options: https://github.com/eKoopmans/html2pdf.js#worker-api
-//  - Try to get a bundled version of this website working
-//    - If we cant get a bundled version working then revert to pureJS
-//      - Delete esBuild and html2pdf packages, and delete build scripts from package.json
-//      - Delete dist folder, src is the dist folder if we dont use a bundler
-//  - Try to setup files so that files import their related script tag 
-//    - createPdf should append the script tags needed for that file to run/work, i.e. html2pdf
-//  - Do we want user to be able to change the interval for auto-refresh?
-//    - If we allow user to change it, we should also allow user to disable it, 
-//      which means we need to conditionally render a button to manually update
-//      - Thats kind of a lot of work for a feature no one is going to use
-//
-//
-//  - Renaming: 
-//    [ DONE ] Replace all "" in the HTML file to ''
-//
-// Do we want to use NPM?
-//    If we go pureJS: scripts are fetch via CDN, if you dont have internet you cant access the CDN
-//    If we go npm: Packages should be minified and bundled into the website, should be useable offline
-// - If we end up going with npm, we can give jsDoc a try
-
-// THIS IS JUST AWESOME: http://appsweets.net/wasavi/
-
-// function addTagToHead(tagType, attributes) {
-//   // let newScript = document.createElement('script')
-//   // newScript.src = src;
-//   // if (crossOrigin) newScript.crossOrigin = crossOrigin;
-//   // newScript.crossOrigin = crossOrigin
-//   let newTag = document.createElement(tagType);
-//   Object.keys(attributes).forEach(key => {
-//     newTag[key] = attributes[key];
-//   });
-//   console.log(newTag)
-// 
-//   document.head.appendChild(newTag)
-// }
