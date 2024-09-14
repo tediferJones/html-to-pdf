@@ -26,8 +26,8 @@
 
     <script src='./index.js' defer></script>
 	</head>
-  <body class='h-full w-full flex flex-col lg:flex-row'>
-    <div class='flex h-full w-full lg:w-1/2 flex-col'>
+  <body class='w-full flex flex-col lg:flex-row gap-8 lg:gap-0'>
+    <div class='flex h-screen w-full lg:w-1/2 flex-col'>
       <span class='flex justify-between bg-gray-700 relative text-white'>
         <h1 class='my-auto mx-4'>HTML to PDF</h1>
         <div class='flex'>
@@ -140,9 +140,9 @@
         </div>
       </span>
 
-      <div id='newEditor' class='h-full'></div>
+      <div id='newEditor' class='overflow-auto h-full'></div>
     </div>
-    <object id='pdfContainer' class='w-full lg:w-1/2 h-full' type='application/pdf'>
+    <object id='pdfContainer' class='w-full lg:w-1/2 h-screen' type='application/pdf'>
       <p>Unable to display PDF file. <a id='pdfDisplayError'>Download</a> instead.</p>
     </object>
   </body>

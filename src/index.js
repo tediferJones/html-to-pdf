@@ -31,7 +31,7 @@ const editor = CodeMirror(document.getElementById('newEditor'), {
   theme: 'ayu-dark',
   autoCloseTags: true,
   matchTags: {bothTags: true},
-  value: `<div class='m-4'>
+  value: window.localStorage.getItem('html2pdfContent') || `<div class='m-4'>
   <div class='bg-orange-500 text-gray-300 p-8 text-4xl flex justify-center'>
     Hello World
   </div>
@@ -78,6 +78,7 @@ const defaultOptions = {
 
 async function updatePdf(renderOnce) {
   const content = editor.getValue();
+  window.localStorage.setItem('html2pdfContent', content)
 
   // Why does this work? No body knows
   // Theory: The new tailwind classes dont get imported in time, but if you just run it again they will already been imported from the last run
@@ -206,7 +207,7 @@ const highestZIndex = Number(window.getComputedStyle(document.getElementsByClass
 new Map(Object.entries({
   html: () => URL.createObjectURL(
     new File(
-      ['<script src="https://cdn.tailwindcss.com"></script>' + editor.getValue()], 
+      ['<script src="https://cdn.tailwindcss.com"></script>\n' + editor.getValue()], 
       'tempFileName', 
       { type: 'text/html' }
     )
