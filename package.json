@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "live-server --open=src/ --port=3000 --host=localhost"
+    "dev": "live-server --open=src/ --port=3000 --host=localhost",
+    "deploy": "rm docs/* && cp src/* docs/"
   },
   "author": "",
   "license": "ISC",
